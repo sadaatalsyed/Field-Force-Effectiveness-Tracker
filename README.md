@@ -51,12 +51,6 @@ Explore the **[complete business case study with all 10 real screenshots](docs/C
 | [Architecture](docs/ARCHITECTURE.md) | Source → SQL grain → semantic model → dashboards |
 | [Data quality](docs/DATA_QUALITY.md) | Date boundaries, GPS denominator, threshold review and limitations |
 
-## What was analyzed
-
-- **10 actual report pages**, from the provided Power BI PDF export.
-- **90 original semantic-model DAX measures** in the provided TMDL text, grouped by 8 source tables.
-- Business-rules overview **displays 68 KPI definitions** (16 Sales, 15 Route, 18 Market/GPS, 19 Product Mix). This does not mean 68 separate DAX measures.
-- Six actual provided SQL query extracts and a visual-reference export from PBIX report metadata.
 
 ## Decisions and nuances worth discussing in an interview
 
