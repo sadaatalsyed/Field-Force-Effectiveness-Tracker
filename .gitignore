@@ -1,0 +1,22 @@
+# Sensitive Power BI models, data and local exports
+*.pbix
+*.pbit
+*.pbip
+*.bak
+*.dacpac
+.env
+.env.*
+!.env.example
+credentials*.json
+secrets*.json
+*.xlsx
+*.xls
+*.csv
+*.parquet
+*.zip
+*.7z
+*.pdf
+.DS_Store
+Thumbs.db
+__pycache__/
+.pytest_cache/

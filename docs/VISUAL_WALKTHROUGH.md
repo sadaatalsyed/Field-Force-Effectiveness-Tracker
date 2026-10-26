@@ -1,5 +1,7 @@
 # Visual walkthrough — all 10 observed report pages
 
+Browse the [public-safe schematic gallery](REPORT_GALLERY.md) for five illustrated report-layout previews. They are **not original report screenshots**.
+
 The mappings below come from the **actual report page names and field/measure references found in the uploaded PBIX report definition**, cross-checked against the PDF. They are not guessed visual requirements. The uploaded PDF provides the visual appearance; confidential rows have been kept out of the public repository.
 
 | PDF page | Power BI page | Audience / analytical goal | Confirmed visual patterns |
@@ -39,4 +41,4 @@ Start from Overview, identify which regional measure is off-target, enter the re
 
 ## Visual gallery status
 
-A set of **10 rendered images from the provided PDF**, including redacted detail-matrix screenshots, is included in the accompanying local asset package prepared for manual binary upload. This GitHub connector can write source text but does **not** accept local PNG/WEBP bytes in this workflow, so the true screenshots are not misrepresented as already hosted here. The two SVG visuals on the project homepage are **original explanatory diagrams, not the PDF screenshots**.
+A set of **10 rendered images from the provided PDF**, including redacted detail-matrix screenshots, is included in the accompanying local asset package prepared for manual binary upload. This GitHub connector can write source text but does **not** accept local PNG/WEBP bytes in this workflow, so the true screenshots are not misrepresented as already hosted here. The SVGs in the gallery are **original explanatory illustrations, not the PDF screenshots**.
