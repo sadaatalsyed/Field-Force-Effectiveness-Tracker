@@ -1,0 +1,119 @@
+# ORIGINAL DAX EXPRESSIONS — Extracted from user-supplied TMDL
+# Table: Sheet1-DailySalesPerformance
+# Exact source expressions kept, not refactored. Some may have known logic concerns.
+
+// App Sales (Planned)
+App Sales (Planned) =
+SUM('Sheet1-DailySalesPerformance'[TotalAppSalesFromPlannedShopsPKR])
+
+// App Sales (Planned) %
+App Sales (Planned) % =
+DIVIDE(SUM('Sheet1-DailySalesPerformance'[TotalAppSalesFromPlannedShopsPKR]),SUM('Sheet1-DailySalesPerformance'[TotalAppSalesFromPlannedShopsPKR])+SUM('Sheet1-DailySalesPerformance'[TotalAppSalesFromUnplannedShopsPKR]),0)
+
+// App Sales (UnPlanned)
+App Sales (UnPlanned) =
+SUM('Sheet1-DailySalesPerformance'[TotalAppSalesFromUnplannedShopsPKR])
+
+// Avg Order Per Outlet (App)
+Avg Order Per Outlet (App) =
+DIVIDE(SUM('Sheet1-DailySalesPerformance'[TotalSalesBookedForTheDayApp]),SUM('Sheet1-DailySalesPerformance'[AppOutletsVisited]),0)
+
+// Avg Order Per Outlet 20Pct
+Avg Order Per Outlet 20Pct =
+DIVIDE(SUM('Sheet1-DailySalesPerformance'[ValueFromBottom20PctOutlets]),SUM('Sheet1-DailySalesPerformance'[OutletsContributing20PctValue]),0)
+
+// Avg Order Per Outlet 80Pct
+Avg Order Per Outlet 80Pct =
+Coalesce(DIVIDE(SUM('Sheet1-DailySalesPerformance'[ValueFromTop80PctOutlets]),SUM('Sheet1-DailySalesPerformance'[OutletsContributing80PctValue]),0),"")
+
+// IsInLast12Days
+IsInLast12Days =
+VAR SelectedDay = 
+				    CALCULATE ( Min ( 'Date Table'[Date] ), ALLSELECTED ( 'Date Table' ) )
+				VAR CurrentAxisDate = Min ( 'Date Table'[Date] )
+				RETURN
+				IF ( CurrentAxisDate > SelectedDay - 12 && CurrentAxisDate <= SelectedDay, 1, 0 )
+
+// Last12Days_Exec
+Last12Days_Exec =
+VAR SelectedDay = MAX ( 'Date Table'[Date] )   -- jo slicer se select hoga
+				RETURN
+				CALCULATE (
+				     [Order vs Execution % (Previous Day)],
+				    DATESINPERIOD ( 'Date Table'[Date], SelectedDay, -12, DAY ),
+				    ALL ( 'Date Table' )
+				)
+
+// OB Contribution %
+OB Contribution % =
+DIVIDE(
+				    [Sales Booked (App)],
+				    CALCULATE(
+				        [Sales Booked (App)],
+				        REMOVEFILTERS(Org_hierarchy[OrderBooker]),REMOVEFILTERS(Org_hierarchy[OB Code])
+				    ),
+				    0
+				)
+
+// OBs Worked s1
+OBs Worked s1 =
+DISTINCTCOUNT('Sheet1-DailySalesPerformance'[OBCode])
+
+// Order vs Execution % (Previous Day)
+Order vs Execution % (Previous Day) =
+DIVIDE(
+				    [Previous Day Delivered Value],
+				    [Previous Day Order Booked],0
+				)
+
+// Order vs Execution % (Today)
+Order vs Execution % (Today) =
+DIVIDE(
+				    SUM('Sheet1-DailySalesPerformance'[TotalSalesDelivered]),
+				    SUM('Sheet1-DailySalesPerformance'[TodayOrderBookedPKR]),0
+				)
+
+// Outlets Contributing 20% (BookedSales)
+Outlets Contributing 20% (BookedSales) =
+SUM('Sheet1-DailySalesPerformance'[OutletsContributing20PctValue])
+
+// Outlets Contributing 80% (BookedSales)
+Outlets Contributing 80% (BookedSales) =
+SUM('Sheet1-DailySalesPerformance'[OutletsContributing80PctValue])
+
+// Outlets(80Pct)%
+Outlets(80Pct)% =
+DIVIDE(SUM('Sheet1-DailySalesPerformance'[OutletsContributing80PctValue]),SUM('Sheet1-DailySalesPerformance'[TotalOutlets]),0)
+
+// Previous Day Delivered Value
+Previous Day Delivered Value =
+CALCULATE(
+				    SUM('Sheet1-DailySalesPerformance'[TotalSalesDelivered]),
+				    PREVIOUSDAY('Date Table'[Date])
+				)
+
+// Previous Day Lost Sales
+Previous Day Lost Sales =
+CALCULATE(
+				    Sum('Sheet1-DailySalesPerformance'[LostSalesDueToOperationsPKR]),
+				    PREVIOUSDAY('Date Table'[Date])
+				)
+
+// Previous Day Order Booked
+Previous Day Order Booked =
+CALCULATE(
+				    SUM('Sheet1-DailySalesPerformance'[TotalSalesBookedForTheDayApp])+SUM('Sheet1-DailySalesPerformance'[TotalSalesBookedForTheDayWeb]),
+				    PREVIOUSDAY('Date Table'[Date])
+				)
+
+// Sales Booked (App)
+Sales Booked (App) =
+SUM('Sheet1-DailySalesPerformance'[TotalSalesBookedForTheDayApp])
+
+// Sales Booked (Web)
+Sales Booked (Web) =
+SUM('Sheet1-DailySalesPerformance'[TotalSalesBookedForTheDayWeb])
+
+// Web Sales Value
+Web Sales Value =
+SUM('Sheet1-DailySalesPerformance'[WebSalesDelivered])

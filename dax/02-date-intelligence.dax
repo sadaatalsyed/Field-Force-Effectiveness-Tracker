@@ -1,0 +1,13 @@
+# ORIGINAL DAX EXPRESSIONS — Extracted from user-supplied TMDL
+# Table: Date Table
+# Exact source expressions kept, not refactored. Some may have known logic concerns.
+
+// Last12Days_Sales
+Last12Days_Sales =
+VAR SelectedDay = MAX ( 'Date Table'[Date] )   -- jo slicer se select hoga
+				RETURN
+				CALCULATE (
+				     [Previous Day Order Booked],
+				    DATESINPERIOD ( 'Date Table'[Date], SelectedDay, -12, DAY ),
+				    ALL ( 'Date Table' )
+				)

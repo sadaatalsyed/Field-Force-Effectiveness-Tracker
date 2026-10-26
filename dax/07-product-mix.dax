@@ -1,0 +1,43 @@
+# ORIGINAL DAX EXPRESSIONS — Extracted from user-supplied TMDL
+# Table: Sheet4-Product Mix & Brand Performance
+# Exact source expressions kept, not refactored. Some may have known logic concerns.
+
+// Assortment Status
+Assortment Status =
+VAR _cross =COALESCE( [Cross Brand Selling %],"")
+				  RETURN
+				  SWITCH(
+				      TRUE(),
+				      ISBLANK(_cross)|| _cross=""," ",
+				      _cross >= 0.65, "Broad",
+				      _cross >= 0.55, "Narrowing",
+				      "Single brand"
+				  )
+
+// Avg Brands Per Bill
+Avg Brands Per Bill =
+Var AvgValue=DIVIDE ( SUM ( 'Sheet4-Product Mix & Brand Performance'[TotalBrandsInBill] ), SUM ( 'Sheet4-Product Mix & Brand Performance'[BillCount] ) )
+				Return 
+				IF(ISBLANK(AvgValue),"",AvgValue)
+
+// Avg Segments Per Bill
+Avg Segments Per Bill =
+Var AvgValue=DIVIDE ( SUM ( 'Sheet4-Product Mix & Brand Performance'[TotalSegmentsInBill] ), SUM ( 'Sheet4-Product Mix & Brand Performance'[BillCount]) )
+				Return 
+				IF(ISBLANK(AvgValue),"",AvgValue)
+
+// Avg Variance Per Bill
+Avg Variance Per Bill =
+Var AvgValue=DIVIDE ( SUM ( 'Sheet4-Product Mix & Brand Performance'[TotalVariantsInBill] ), SUM ( 'Sheet4-Product Mix & Brand Performance'[BillCount]) )
+				Return 
+				IF(ISBLANK(AvgValue),"",AvgValue)
+
+// Cross Brand Selling %
+Cross Brand Selling % =
+Var AvgValue= DIVIDE ( SUM ( 'Sheet4-Product Mix & Brand Performance'[CrossBrandBillCount] ), SUM ( 'Sheet4-Product Mix & Brand Performance'[BillCount] ) )
+				Return 
+				IF(ISBLANK(AvgValue),"",AvgValue)
+
+// OBs Worked s4
+OBs Worked s4 =
+DISTINCTCOUNT('Sheet4-Product Mix & Brand Performance'[OBCode])

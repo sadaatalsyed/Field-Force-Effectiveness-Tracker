@@ -1,0 +1,628 @@
+<PARSED TEXT FOR SHEET: 1 / 1 TABS
+TAB NAME: dax__measure-inventory.csv>
+index,Table,Measure,Referenced report pages,Referenced visual types,DAX expression,Format
+0,Business Rules,Daily Sales KPIs,KPI Business Rules,advanceCardE03760C5AB684758B56AA29F9E6C257B,"CALCULATE(COUNT('Business Rules'[Report Name]),'Business Rules'[Report Name]=""Daily Sales Performance"")",0
+1,Business Rules,Product Mix KPIs,KPI Business Rules,advanceCardE03760C5AB684758B56AA29F9E6C257B,"CALCULATE(COUNT('Business Rules'[Report Name]),'Business Rules'[Report Name]=""Product Mix & Brand Performance"")",0
+2,Business Rules,Route Execution KPIs,KPI Business Rules,advanceCardE03760C5AB684758B56AA29F9E6C257B,"CALCULATE(COUNT('Business Rules'[Report Name]),'Business Rules'[Report Name]=""Route Execution & Productivity"")",0
+3,Business Rules,Time Intelligence KPIs,KPI Business Rules,advanceCardE03760C5AB684758B56AA29F9E6C257B,"CALCULATE(COUNT('Business Rules'[Report Name]),'Business Rules'[Report Name]=""Market Time & GPS"")",0
+4,Business Rules,Total KPIs Defined,KPI Business Rules,advanceCardE03760C5AB684758B56AA29F9E6C257B,COUNT('Business Rules'[Report Name]),0
+5,Date Table,Last12Days_Sales,,,"VAR SelectedDay = MAX ( 'Date Table'[Date] )   -- jo slicer se select hoga
+				RETURN
+				CALCULATE (
+				     [Previous Day Order Booked],
+				    DATESINPERIOD ( 'Date Table'[Date], SelectedDay, -12, DAY ),
+				    ALL ( 'Date Table' )
+				)",
+6,Org_hierarchy,ActiveOrderbookers (TM Restricted),,,"VAR TM =
+				    SELECTEDVALUE(Org_hierarchy[TMUsername])
+				RETURN
+				IF(
+				    NOT ISBLANK(TM),
+				    CALCULATE(
+				        DISTINCTCOUNT(Org_hierarchy[OB Code]),
+				        REMOVEFILTERS(Org_hierarchy),
+				        Org_hierarchy[TMUsername] = TM
+				    ),
+				    DISTINCTCOUNT(Org_hierarchy[OB Code])
+				)",0
+7,Org_hierarchy,OBs Overall,Daily Sales (Charts); Daily Sales Performance; Market Time & GPS; Market Time & GPS (Charts); Overview; Product Mix & Brand Performance; Product Mix (Charts); Route Execution & Productivity; Route Execution (Charts),cardVisual; pivotTable,DISTINCTCOUNT(Org_hierarchy[OB Code]),0
+8,Sheet1-DailySalesPerformance,App Sales (Planned),Daily Sales (Charts); Daily Sales Performance; Overview,columnChart; donutChart; pivotTable,SUM('Sheet1-DailySalesPerformance'[TotalAppSalesFromPlannedShopsPKR]),
+9,Sheet1-DailySalesPerformance,App Sales (Planned) %,Daily Sales (Charts); Daily Sales Performance; Overview,columnChart; pivotTable,"DIVIDE(SUM('Sheet1-DailySalesPerformance'[TotalAppSalesFromPlannedShopsPKR]),SUM('Sheet1-DailySalesPerformance'[TotalAppSalesFromPlannedShopsPKR])+SUM('Sheet1-DailySalesPerformance'[TotalAppSalesFromUnplannedShopsPKR]),0)",0.0%;-0.0%;0.0%
+10,Sheet1-DailySalesPerformance,App Sales (UnPlanned),Daily Sales (Charts); Daily Sales Performance; Overview,columnChart; donutChart; pivotTable,SUM('Sheet1-DailySalesPerformance'[TotalAppSalesFromUnplannedShopsPKR]),
+11,Sheet1-DailySalesPerformance,Avg Order Per Outlet (App),Daily Sales (Charts); Daily Sales Performance; Overview,cardVisual; pivotTable,"DIVIDE(SUM('Sheet1-DailySalesPerformance'[TotalSalesBookedForTheDayApp]),SUM('Sheet1-DailySalesPerformance'[AppOutletsVisited]),0)",
+12,Sheet1-DailySalesPerformance,Avg Order Per Outlet 20Pct,Daily Sales (Charts); Daily Sales Performance; Overview,clusteredColumnChart; pivotTable,"DIVIDE(SUM('Sheet1-DailySalesPerformance'[ValueFromBottom20PctOutlets]),SUM('Sheet1-DailySalesPerformance'[OutletsContributing20PctValue]),0)",
+13,Sheet1-DailySalesPerformance,Avg Order Per Outlet 80Pct,Daily Sales (Charts); Daily Sales Performance; Overview,clusteredColumnChart; pivotTable,"Coalesce(DIVIDE(SUM('Sheet1-DailySalesPerformance'[ValueFromTop80PctOutlets]),SUM('Sheet1-DailySalesPerformance'[OutletsContributing80PctValue]),0),"""")",
+14,Sheet1-DailySalesPerformance,IsInLast12Days,Daily Sales (Charts); Overview,lineClusteredColumnComboChart,"VAR SelectedDay = 
+				    CALCULATE ( Min ( 'Date Table'[Date] ), ALLSELECTED ( 'Date Table' ) )
+				VAR CurrentAxisDate = Min ( 'Date Table'[Date] )
+				RETURN
+				IF ( CurrentAxisDate > SelectedDay - 12 && CurrentAxisDate <= SelectedDay, 1, 0 )",0
+15,Sheet1-DailySalesPerformance,Last12Days_Exec,,,"VAR SelectedDay = MAX ( 'Date Table'[Date] )   -- jo slicer se select hoga
+				RETURN
+				CALCULATE (
+				     [Order vs Execution % (Previous Day)],
+				    DATESINPERIOD ( 'Date Table'[Date], SelectedDay, -12, DAY ),
+				    ALL ( 'Date Table' )
+				)",
+16,Sheet1-DailySalesPerformance,OB Contribution %,Daily Sales (Charts),pivotTable,"DIVIDE(
+				    [Sales Booked (App)],
+				    CALCULATE(
+				        [Sales Booked (App)],
+				        REMOVEFILTERS(Org_hierarchy[OrderBooker]),REMOVEFILTERS(Org_hierarchy[OB Code])
+				    ),
+				    0
+				)",0%;-0%;0%
+17,Sheet1-DailySalesPerformance,OBs Worked s1,Daily Sales (Charts); Daily Sales Performance; Overview,cardVisual; pivotTable,DISTINCTCOUNT('Sheet1-DailySalesPerformance'[OBCode]),0
+18,Sheet1-DailySalesPerformance,Order vs Execution % (Previous Day),Daily Sales (Charts); Daily Sales Performance; Overview,cardVisual; pivotTable,"DIVIDE(
+				    [Previous Day Delivered Value],
+				    [Previous Day Order Booked],0
+				)",0.0%;-0.0%;0.0%
+19,Sheet1-DailySalesPerformance,Order vs Execution % (Today),Daily Sales (Charts); Daily Sales Performance; Overview,cardVisual; lineClusteredColumnComboChart; pivotTable,"DIVIDE(
+				    SUM('Sheet1-DailySalesPerformance'[TotalSalesDelivered]),
+				    SUM('Sheet1-DailySalesPerformance'[TodayOrderBookedPKR]),0
+				)",0.0%;-0.0%;0.0%
+20,Sheet1-DailySalesPerformance,Outlets Contributing 20% (BookedSales),Daily Sales (Charts); Daily Sales Performance; Overview,hundredPercentStackedBarChart; pivotTable,SUM('Sheet1-DailySalesPerformance'[OutletsContributing20PctValue]),0
+21,Sheet1-DailySalesPerformance,Outlets Contributing 80% (BookedSales),Daily Sales (Charts); Daily Sales Performance; Overview,hundredPercentStackedBarChart; pivotTable,SUM('Sheet1-DailySalesPerformance'[OutletsContributing80PctValue]),0
+22,Sheet1-DailySalesPerformance,Outlets(80Pct)%,Daily Sales (Charts); Daily Sales Performance; Overview,decompositionTreeVisual; pivotTable,"DIVIDE(SUM('Sheet1-DailySalesPerformance'[OutletsContributing80PctValue]),SUM('Sheet1-DailySalesPerformance'[TotalOutlets]),0)",0.0%;-0.0%;0.0%
+23,Sheet1-DailySalesPerformance,Previous Day Delivered Value,Daily Sales (Charts); Daily Sales Performance; Overview,pivotTable,"CALCULATE(
+				    SUM('Sheet1-DailySalesPerformance'[TotalSalesDelivered]),
+				    PREVIOUSDAY('Date Table'[Date])
+				)",
+24,Sheet1-DailySalesPerformance,Previous Day Lost Sales,Daily Sales (Charts); Daily Sales Performance; Overview,cardVisual; pivotTable,"CALCULATE(
+				    Sum('Sheet1-DailySalesPerformance'[LostSalesDueToOperationsPKR]),
+				    PREVIOUSDAY('Date Table'[Date])
+				)",
+25,Sheet1-DailySalesPerformance,Previous Day Order Booked,Daily Sales (Charts); Daily Sales Performance; Overview,cardVisual; pivotTable,"CALCULATE(
+				    SUM('Sheet1-DailySalesPerformance'[TotalSalesBookedForTheDayApp])+SUM('Sheet1-DailySalesPerformance'[TotalSalesBookedForTheDayWeb]),
+				    PREVIOUSDAY('Date Table'[Date])
+				)",
+26,Sheet1-DailySalesPerformance,Sales Booked (App),Daily Sales (Charts); Daily Sales Performance; Overview,cardVisual; columnChart; pivotTable,SUM('Sheet1-DailySalesPerformance'[TotalSalesBookedForTheDayApp]),
+27,Sheet1-DailySalesPerformance,Sales Booked (Web),Daily Sales (Charts); Daily Sales Performance; Overview,cardVisual; columnChart; pivotTable,SUM('Sheet1-DailySalesPerformance'[TotalSalesBookedForTheDayWeb]),
+28,Sheet1-DailySalesPerformance,Web Sales Value,Daily Sales (Charts); Daily Sales Performance; Overview,pivotTable,SUM('Sheet1-DailySalesPerformance'[WebSalesDelivered]),
+29,Sheet2-RouteExecution,Avg Order Prod. Outlets,Route Execution & Productivity; Route Execution (Charts),pivotTable,"DIVIDE(SUM('Sheet2-RouteExecution'[TotalProductiveOrderValue]),SUM('Sheet2-RouteExecution'[ProductiveOutletsOverall]),0)",
+30,Sheet2-RouteExecution,Execution_Status_Flag,,,"VAR PJP = [PJP Compliance %]
+				VAR Strike = [StrikeRate% Overall]
+				RETURN
+				SWITCH(
+				    TRUE(),
+				    PJP >= 95 && Strike >= 65, ""#2E7D32"", -- Green (On Track)
+				    PJP >= 90 || Strike >= 60, ""#F57C00"", -- Amber (Watch)
+				    ""#C62828""                             -- Red (Action Needed)
+				)",
+31,Sheet2-RouteExecution,Missed Possible order value,Overview; Route Execution & Productivity; Route Execution (Charts),cardVisual; decompositionTreeVisual; lineClusteredColumnComboChart; pivotTable,"Var Missed=SUM('Sheet2-RouteExecution'[MissedOutlets])* [Avg Order Prod. Outlets]
+				Return 
+				iF(
+				    ISBLANK(Missed),"""",Missed
+				)",
+32,Sheet2-RouteExecution,OB Execution Status,Route Execution (Charts),pivotTable,"VAR _pjp = [PJP Compliance %]
+				VAR _strike = [StrikeRate% Overall]
+				RETURN
+				SWITCH(
+				    TRUE(),
+				    ISBLANK(_pjp) ,"""",
+				    _pjp >= 0.95 && _strike >= 0.65, ""On track"",
+				    _pjp >= 0.90 || _strike >= 0.60, ""Watch"",
+				    ""Action needed""
+				)",
+33,Sheet2-RouteExecution,OBs Worked s2,Route Execution & Productivity; Route Execution (Charts),pivotTable,DISTINCTCOUNT('Sheet2-RouteExecution'[OBCode]),0
+34,Sheet2-RouteExecution,PJP Compliance %,Market Time & GPS (Charts); Overview; Route Execution & Productivity; Route Execution (Charts),cardVisual; clusteredBarChart; clusteredColumnChart; lineClusteredColumnComboChart; pivotTable,"DIVIDE(SUM('Sheet2-RouteExecution'[TotalVisitsPlanned_InclNonProductive]),SUM('Sheet2-RouteExecution'[PlannedShopsInPJP]),0)",0.00%;-0.00%;0.00%
+35,Sheet2-RouteExecution,PJP Status,Overview,pivotTable,"VAR _pjp = COALESCE([PJP Compliance %],"""")
+				RETURN
+				SWITCH(
+				    TRUE(),
+				    ISBLANK(_pjp) || _pjp ="""", "" "",
+				    _pjp >= 0.95, ""On track"",
+				    _pjp >= 0.90, ""Watch"",
+				    _pjp <= 0.90,""Action needed""
+				)",
+36,Sheet2-RouteExecution,Planned Productive,Route Execution & Productivity; Route Execution (Charts),pivotTable,SUM('Sheet2-RouteExecution'[PlannedProductiveShopsApp])+SUM('Sheet2-RouteExecution'[PlannedProductiveShopsWeb]),0
+37,Sheet2-RouteExecution,Productive Outlets over500 bil%,Overview; Route Execution & Productivity; Route Execution (Charts),clusteredBarChart; lineClusteredColumnComboChart; pivotTable,"DIVIDE(SUM('Sheet2-RouteExecution'[ProductiveOutletsOver500Bill]),SUM('Sheet2-RouteExecution'[ProductiveOutletsOverall]),0)",0.0%;-0.0%;0.0%
+38,Sheet2-RouteExecution,Productive Outlets under500 bil%,Overview; Route Execution & Productivity; Route Execution (Charts),clusteredBarChart; lineClusteredColumnComboChart; pivotTable,"DIVIDE(SUM('Sheet2-RouteExecution'[ProductiveOutletsUnder500Bill]),SUM('Sheet2-RouteExecution'[ProductiveOutletsOverall]),0)",0.0%;-0.0%;0.0%
+39,Sheet2-RouteExecution,StrikeRate% Overall,Overview; Route Execution & Productivity; Route Execution (Charts),cardVisual; clusteredBarChart; clusteredColumnChart; lineClusteredColumnComboChart; pivotTable,"VAR _PlannedOutlets =
+				    SUM('Sheet2-RouteExecution'[PlannedShopsInPJP])
+				VAR _PlannedVisits =
+				    SUM('Sheet2-RouteExecution'[TotalVisitsPlanned_InclNonProductive])
+				RETURN
+				IF(
+				    _PlannedOutlets = 0 || _PlannedVisits = 0,
+				    0,
+				    DIVIDE(
+				        SUM('Sheet2-RouteExecution'[ProductiveOutletsOverall]),
+				        SUM('Sheet2-RouteExecution'[TotalVisits_InclNonProductive]),
+				        0
+				    )
+				)",0.0%;-0.0%;0.0%
+40,Sheet2-RouteExecution,StrikeRate% Under 100m,Route Execution & Productivity; Route Execution (Charts),pivotTable,"VAR _PlannedOutlets =
+				    SUM('Sheet2-RouteExecution'[PlannedShopsInPJP])
+				VAR _PlannedVisits =
+				    SUM('Sheet2-RouteExecution'[TotalVisitsPlanned_InclNonProductive])
+				RETURN
+				IF(
+				    _PlannedOutlets = 0 || _PlannedVisits = 0,
+				    0,
+				    DIVIDE(
+				        SUM('Sheet2-RouteExecution'[ProductiveOutletsUnder100m]),
+				        SUM('Sheet2-RouteExecution'[TotalVisits_InclNonProductive]),
+				        0
+				    )
+				)",0.0%;-0.0%;0.0%
+41,Sheet3-MarketTime&GPS,% Shops Without GPS,,,"VAR NoGPS = SUM('Sheet3-MarketTime&GPS'[ShopsVisitedWithoutGPS])
+				VAR TotalStops = SUM('Sheet3-MarketTime&GPS'[TotalStopRows])
+				RETURN
+				IF(
+				    TotalStops = 0,
+				    ""-"",
+				    ROUND(DIVIDE(NoGPS, TotalStops) * 100, 2) & ""%""
+				)",
+42,Sheet3-MarketTime&GPS,Active Market Time (HH:MM),Market Time & GPS; Market Time & GPS (Charts); Overview,cardVisual; clusteredBarChart; clusteredColumnChart; lineClusteredColumnComboChart; pivotTable,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[ActiveMarketTime_HHMM])
+				    )
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[ActiveMarketTime_HHMM])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    """",
+				    FORMAT(INT(MedianSeconds / 3600), ""00"") & "":"" & FORMAT(MOD(INT(MedianSeconds / 60), 60), ""00"")
+				)",
+43,Sheet3-MarketTime&GPS,Active Market Time Median,Market Time & GPS (Charts),clusteredColumnChart,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[ActiveMarketTime_HHMM])
+				    )
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[ActiveMarketTime_HHMM])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    """",
+				    MedianSeconds
+				)",
+44,Sheet3-MarketTime&GPS,Avg Stops per Day,Market Time & GPS (Charts),pivotTable,"AVERAGEX(
+				    VALUES('Date Table'[Date]),
+				    CALCULATE(SUM('Sheet3-MarketTime&GPS'[TotalStopsMade]))
+				)",0
+45,Sheet3-MarketTime&GPS,Avg Time Between Visits (Minutes),Market Time & GPS; Market Time & GPS (Charts),pivotTable,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[AvgTimeBetweenVisitsMinutes])
+				    )
+				VAR MedianValue =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[AvgTimeBetweenVisitsMinutes])
+				    )
+				RETURN
+				IF(ISBLANK(MedianValue), """", ROUND(MedianValue, 2) & "" min"")",
+46,Sheet3-MarketTime&GPS,Avg Time Between Visits (Seconds),,,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[AvgTimeBetweenVisitsMinutes])
+				    )
+				
+				VAR MedianValue =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(
+				            ValidRows,
+				            'Sheet3-MarketTime&GPS'[AvgTimeBetweenVisitsMinutes]
+				        )
+				    )
+				
+				RETURN
+				IF(
+				    ISBLANK(MedianValue),
+				    BLANK(),
+				    INT(MedianValue * 60)
+				)",
+47,Sheet3-MarketTime&GPS,Before/After Field Time (HH:MM),Market Time & GPS (Charts),cardVisual; clusteredColumnChart,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM])
+				            && NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInTrade_HHMM])
+				    )
+				
+				VAR MedianDifference =
+				    MEDIANX(
+				        ValidRows,
+				        'Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM]
+				            - 'Sheet3-MarketTime&GPS'[TotalTimeSpentInTrade_HHMM]
+				    )
+				
+				RETURN
+				IF(
+				    ISBLANK(MedianDifference),
+				    """",
+				    FORMAT(INT(MedianDifference / 3600), ""00"")
+				        & "":""
+				        & FORMAT(MOD(INT(MedianDifference / 60), 60), ""00"")
+				)",
+48,Sheet3-MarketTime&GPS,Before/After Field Time (seconds),,,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM])
+				            && NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInTrade_HHMM])
+				    )
+				
+				VAR MedianDifference =
+				    MEDIANX(
+				        ValidRows,
+				        'Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM]
+				            - 'Sheet3-MarketTime&GPS'[TotalTimeSpentInTrade_HHMM]
+				    )
+				
+				RETURN
+				IF(
+				    ISBLANK(MedianDifference),
+				    BLANK(),
+				    INT(MedianDifference)
+				)",0
+49,Sheet3-MarketTime&GPS,Data Quality,Market Time & GPS (Charts),pivotTable,"VAR _fieldTime = [Field Time (HH:MM)]
+				VAR _gps = [GPS Compliance %]
+				RETURN
+				SWITCH(
+				    TRUE(),
+				    ISBLANK(_fieldTime) || _fieldTime=""""  , ""absent"",
+				    _gps >= 0.85, ""Reliable"",
+				    _gps >= 0.75, ""Gaps"",
+				    ""Unreliable""
+				)",
+50,Sheet3-MarketTime&GPS,Day End (Median Time),,,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[DayEnd])
+				    )
+				Return
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[DayEnd], 1))
+				    )",
+51,Sheet3-MarketTime&GPS,Day End (Median Time) Display,Market Time & GPS; Market Time & GPS (Charts),cardVisual; pivotTable,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[DayEnd])
+				    )
+				VAR MedianFraction =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[DayEnd], 1))
+				    )
+				RETURN
+				IF(ISBLANK(MedianFraction), """", FORMAT(MedianFraction, ""hh:mm AM/PM""))",
+52,Sheet3-MarketTime&GPS,Day Start (Median Time),,,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[DayStart])
+				    )
+				RETURN
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[DayStart], 1))
+				    )",
+53,Sheet3-MarketTime&GPS,Day Start (Median Time) Display,Market Time & GPS; Market Time & GPS (Charts),cardVisual; pivotTable,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[DayStart])
+				    )
+				VAR MedianFraction =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[DayStart], 1))
+				    )
+				RETURN
+				IF(ISBLANK(MedianFraction), """", FORMAT(MedianFraction, ""hh:mm AM/PM""))",
+54,Sheet3-MarketTime&GPS,Field Time (HH:MM),Market Time & GPS (Charts),clusteredBarChart; clusteredColumnChart; lineClusteredColumnComboChart,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM])
+				    )
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    """",
+				    FORMAT(INT(MedianSeconds / 3600), ""00"") & "":"" & FORMAT(MOD(INT(MedianSeconds / 60), 60), ""00"")
+				)",
+55,Sheet3-MarketTime&GPS,Field Time (HH:MM) Derived,Market Time & GPS; Market Time & GPS (Charts),cardVisual; clusteredColumnChart; pivotTable,"VAR MedStart = [Day Start (Median Time)]   -- fraction value, not the ""-"" text version
+				VAR MedEnd   = [Day End (Median Time)]
+				RETURN
+				IF(
+				    OR(ISBLANK(MedStart), ISBLANK(MedEnd)),
+				    """",
+				    VAR DiffSeconds = (MedEnd - MedStart) * 86400
+				    RETURN FORMAT(INT(DiffSeconds / 3600), ""00"") & "":"" & FORMAT(MOD(INT(DiffSeconds / 60), 60), ""00"")
+				)",
+56,Sheet3-MarketTime&GPS,Field Time Median,,,"VAR MedStart = [Day Start (Median Time)]   -- fraction value, not the ""-"" text version
+				VAR MedEnd   = [Day End (Median Time)]
+				RETURN
+				IF(
+				    OR(ISBLANK(MedStart), ISBLANK(MedEnd)),
+				    """",
+				     (MedEnd - MedStart) * 86400
+				)",
+57,Sheet3-MarketTime&GPS,First Shop Called At (Median Time),,,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[FirstShopCalledAt])
+				    )
+				RETURN
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[FirstShopCalledAt], 1))
+				    )",
+58,Sheet3-MarketTime&GPS,First Shop Called At (Median Time) Display,Market Time & GPS; Market Time & GPS (Charts),cardVisual; pivotTable,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[FirstShopCalledAt])
+				    )
+				VAR MedianFraction =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[FirstShopCalledAt], 1))
+				    )
+				RETURN
+				IF(ISBLANK(MedianFraction), """", FORMAT(MedianFraction, ""hh:mm AM/PM""))",
+59,Sheet3-MarketTime&GPS,GPS Compliance %,Market Time & GPS; Market Time & GPS (Charts); Overview,cardVisual; clusteredColumnChart; lineClusteredColumnComboChart; pivotTable,"DIVIDE(SUM('Sheet3-MarketTime&GPS'[ValidGPSCount]),SUM('Sheet3-MarketTime&GPS'[ShopsVisitedWithGPS]),0)",0.00%;-0.00%;0.00%
+60,Sheet3-MarketTime&GPS,Last Shop Called At (Median Time),,,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[LastShopCalledAt])
+				    )
+				RETURN
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[LastShopCalledAt], 1))
+				    )",
+61,Sheet3-MarketTime&GPS,Last Shop Called At (Median Time) Display,Market Time & GPS; Market Time & GPS (Charts),cardVisual; pivotTable,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[LastShopCalledAt])
+				    )
+				VAR MedianFraction =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[LastShopCalledAt], 1))
+				    )
+				RETURN
+				IF(ISBLANK(MedianFraction), """", FORMAT(MedianFraction, ""hh:mm AM/PM""))",
+62,Sheet3-MarketTime&GPS,Last Shop Completed At (Median Time),,,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[LastShopCompletedAt])
+				    )
+				RETURN
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[LastShopCompletedAt], 1))
+				    )",
+63,Sheet3-MarketTime&GPS,Last Shop Completed At (Median Time) Display,Market Time & GPS; Market Time & GPS (Charts),cardVisual; pivotTable,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[LastShopCompletedAt])
+				    )
+				VAR MedianFraction =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[LastShopCompletedAt], 1))
+				    )
+				RETURN
+				IF(ISBLANK(MedianFraction), """", FORMAT(MedianFraction, ""hh:mm AM/PM""))",
+64,Sheet3-MarketTime&GPS,Longest Idle Period (HH:MM:SS),Market Time & GPS; Market Time & GPS (Charts),cardVisual; clusteredBarChart; clusteredColumnChart; lineClusteredColumnComboChart; pivotTable,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[LongestIdlePeriod_HHMMSS])
+				    )
+				VAR MaxSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MAXX(ValidRows, 'Sheet3-MarketTime&GPS'[LongestIdlePeriod_HHMMSS])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MaxSeconds),
+				    """",
+				    FORMAT(INT(MaxSeconds / 3600), ""00"") & "":"" & 
+				    FORMAT(MOD(INT(MaxSeconds / 60), 60), ""00"") & "":"" & 
+				    FORMAT(MOD(INT(MaxSeconds), 60), ""00"")
+				)",
+65,Sheet3-MarketTime&GPS,Longest Idle Period max,Market Time & GPS (Charts),clusteredColumnChart,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[LongestIdlePeriod_HHMMSS])
+				    )
+				VAR MaxSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MAXX(ValidRows, 'Sheet3-MarketTime&GPS'[LongestIdlePeriod_HHMMSS])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MaxSeconds),
+				    """",
+				   MaxSeconds
+				)",
+66,Sheet3-MarketTime&GPS,Median Shop Time (HH:MM:SS),Market Time & GPS; Market Time & GPS (Charts),cardVisual; clusteredBarChart; lineClusteredColumnComboChart; pivotTable,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[MedianTimePerShop_HHMMSS])
+				    )
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[MedianTimePerShop_HHMMSS])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    """",
+				    FORMAT(INT(MedianSeconds / 3600), ""00"") & "":"" & 
+				    FORMAT(MOD(INT(MedianSeconds / 60), 60), ""00"") & "":"" & 
+				    FORMAT(MOD(INT(MedianSeconds), 60), ""00"")
+				)",
+67,Sheet3-MarketTime&GPS,No GPS %,Market Time & GPS; Market Time & GPS (Charts),lineClusteredColumnComboChart; pivotTable,"DIVIDE(SUM('Sheet3-MarketTime&GPS'[ShopsVisitedWithoutGPS]),SUM('Sheet3-MarketTime&GPS'[TotalStopRows]),0)",0.00%;-0.00%;0.00%
+68,Sheet3-MarketTime&GPS,OBs Worked s3,Market Time & GPS; Market Time & GPS (Charts),pivotTable,DISTINCTCOUNT('Sheet3-MarketTime&GPS'[OBCode]),0
+69,Sheet3-MarketTime&GPS,Shop Time (HH:MM),Market Time & GPS; Market Time & GPS (Charts),cardVisual; clusteredBarChart; lineClusteredColumnComboChart; pivotTable,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInShops_HHMM])
+				    )
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[TotalTimeSpentInShops_HHMM])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    """",
+				    FORMAT(INT(MedianSeconds / 3600), ""00"") & "":"" & FORMAT(MOD(INT(MedianSeconds / 60), 60), ""00"")
+				)",
+70,Sheet3-MarketTime&GPS,Shop Time (Seconds) Derived,Market Time & GPS (Charts),lineClusteredColumnComboChart,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInShops_HHMM])
+				    )
+				
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(
+				            ValidRows,
+				            'Sheet3-MarketTime&GPS'[TotalTimeSpentInShops_HHMM]
+				        )
+				    )
+				
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    BLANK(),
+				    INT(MedianSeconds)
+				)",
+71,Sheet3-MarketTime&GPS,Shop Time %,Market Time & GPS; Market Time & GPS (Charts); Product Mix & Brand Performance; Product Mix (Charts),cardVisual; pivotTable,"VAR TotalShopTime = SUM('Sheet3-MarketTime&GPS'[TotalTimeSpentInShops_HHMM])
+				VAR TotalFieldTime = SUM('Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM])
+				RETURN
+				IF(
+				    TotalFieldTime = 0,
+				    """",
+				    ROUND(DIVIDE(TotalShopTime, TotalFieldTime,0), 3)
+				)",0.00%;-0.00%;0.00%
+72,Sheet3-MarketTime&GPS,Shops With GPS,Market Time & GPS; Market Time & GPS (Charts),funnel; lineClusteredColumnComboChart; pivotTable,"VAR TotalCount = SUM('Sheet3-MarketTime&GPS'[ShopsVisitedWithGPS])
+				RETURN
+				IF(TotalCount = 0, """", TotalCount)",0
+73,Sheet3-MarketTime&GPS,Shops Without GPS,Market Time & GPS (Charts),funnel; pivotTable,SUM('Sheet3-MarketTime&GPS'[ShopsVisitedWithoutGPS]),
+74,Sheet3-MarketTime&GPS,Total Idle Period (HH:MM),Market Time & GPS; Market Time & GPS (Charts),cardVisual; clusteredBarChart; clusteredColumnChart; lineClusteredColumnComboChart; pivotTable,"VAR TotalSeconds = MEDIAN('Sheet3-MarketTime&GPS'[TotalIdlePeriod_HHMM])
+				RETURN
+				IF(
+				    ISBLANK(TotalSeconds) || TotalSeconds = 0,
+				    """",
+				    FORMAT(INT(TotalSeconds / 3600), ""00"") & "":"" & FORMAT(MOD(INT(TotalSeconds / 60), 60), ""00"")
+				)",
+75,Sheet3-MarketTime&GPS,Total Idle Period (Seconds) Derived,,,"VAR MedianIdleSeconds =
+				    MEDIAN('Sheet3-MarketTime&GPS'[TotalIdlePeriod_HHMM])
+				
+				RETURN
+				IF(
+				    ISBLANK(MedianIdleSeconds) || MedianIdleSeconds = 0,
+				    BLANK(),
+				    INT(MedianIdleSeconds)
+				)",
+76,Sheet3-MarketTime&GPS,Total Idle Period (Seconds) Median,,,"VAR MedianIdleSeconds =
+				    MEDIAN('Sheet3-MarketTime&GPS'[TotalIdlePeriod_HHMM])
+				
+				RETURN
+				    INT(MedianIdleSeconds)",
+77,Sheet3-MarketTime&GPS,Trade Time (HH:MM),Market Time & GPS (Charts),cardVisual; clusteredBarChart; clusteredColumnChart; lineClusteredColumnComboChart; pivotTable,"VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInTrade_HHMM])
+				    )
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[TotalTimeSpentInTrade_HHMM])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    """",
+				    FORMAT(INT(MedianSeconds / 3600), ""00"") & "":"" & FORMAT(MOD(INT(MedianSeconds / 60), 60), ""00"")
+				)",
+78,Sheet3-MarketTime&GPS,Trade Time (HH:MM) Derived,Market Time & GPS; Market Time & GPS (Charts),pivotTable,"VAR MedStart = [First Shop Called At (Median Time)]   -- fraction value, not the ""-"" text version
+				VAR MedEnd   = [Last Shop Completed At (Median Time)]
+				RETURN
+				IF(
+				    OR(ISBLANK(MedStart), ISBLANK(MedEnd)),
+				    """",
+				    VAR DiffSeconds = (MedEnd - MedStart) * 86400
+				    RETURN FORMAT(INT(DiffSeconds / 3600), ""00"") & "":"" & FORMAT(MOD(INT(DiffSeconds / 60), 60), ""00"")
+				)",
+79,Sheet3-MarketTime&GPS,Trade Time Median,Market Time & GPS (Charts),clusteredColumnChart,"VAR MedStart = [First Shop Called At (Median Time)]   -- fraction value, not the ""-"" text version
+				VAR MedEnd   = [Last Shop Completed At (Median Time)]
+				RETURN
+				IF(
+				    OR(ISBLANK(MedStart), ISBLANK(MedEnd)),
+				    """",
+				     (MedEnd - MedStart) * 86400
+				)",
+80,Sheet4-Product Mix & Brand Performance,Assortment Status,Product Mix (Charts),pivotTable,"VAR _cross =COALESCE( [Cross Brand Selling %],"""")
+				  RETURN
+				  SWITCH(
+				      TRUE(),
+				      ISBLANK(_cross)|| _cross="""","" "",
+				      _cross >= 0.65, ""Broad"",
+				      _cross >= 0.55, ""Narrowing"",
+				      ""Single brand""
+				  )",
+81,Sheet4-Product Mix & Brand Performance,Avg Brands Per Bill,Overview; Product Mix & Brand Performance; Product Mix (Charts),cardVisual; decompositionTreeVisual; pivotTable,"Var AvgValue=DIVIDE ( SUM ( 'Sheet4-Product Mix & Brand Performance'[TotalBrandsInBill] ), SUM ( 'Sheet4-Product Mix & Brand Performance'[BillCount] ) )
+				Return 
+				IF(ISBLANK(AvgValue),"""",AvgValue)",
+82,Sheet4-Product Mix & Brand Performance,Avg Segments Per Bill,Product Mix & Brand Performance; Product Mix (Charts),cardVisual; pivotTable,"Var AvgValue=DIVIDE ( SUM ( 'Sheet4-Product Mix & Brand Performance'[TotalSegmentsInBill] ), SUM ( 'Sheet4-Product Mix & Brand Performance'[BillCount]) )
+				Return 
+				IF(ISBLANK(AvgValue),"""",AvgValue)",
+83,Sheet4-Product Mix & Brand Performance,Avg Variance Per Bill,Product Mix & Brand Performance; Product Mix (Charts),cardVisual; pivotTable,"Var AvgValue=DIVIDE ( SUM ( 'Sheet4-Product Mix & Brand Performance'[TotalVariantsInBill] ), SUM ( 'Sheet4-Product Mix & Brand Performance'[BillCount]) )
+				Return 
+				IF(ISBLANK(AvgValue),"""",AvgValue)",
+84,Sheet4-Product Mix & Brand Performance,Cross Brand Selling %,Overview; Product Mix & Brand Performance; Product Mix (Charts),cardVisual; decompositionTreeVisual; pivotTable,"Var AvgValue= DIVIDE ( SUM ( 'Sheet4-Product Mix & Brand Performance'[CrossBrandBillCount] ), SUM ( 'Sheet4-Product Mix & Brand Performance'[BillCount] ) )
+				Return 
+				IF(ISBLANK(AvgValue),"""",AvgValue)",0.00%;-0.00%;0.00%
+85,Sheet4-Product Mix & Brand Performance,OBs Worked s4,Product Mix & Brand Performance; Product Mix (Charts),pivotTable,DISTINCTCOUNT('Sheet4-Product Mix & Brand Performance'[OBCode]),0
+86,Sheet4b-BrandPerformance,1 Piece Lines,,,"CALCULATE(SUM('Sheet4b-BrandPerformance'[Lines]),'Sheet4b-BrandPerformance'[PieceBand]=""1 Piece"")",0
+87,Sheet4b-BrandPerformance,2 Piece Lines,,,"CALCULATE(SUM('Sheet4b-BrandPerformance'[Lines]),'Sheet4b-BrandPerformance'[PieceBand]=""2 Pieces"")",0
+88,Sheet4b-BrandPerformance,3+ Piece Lines,,,"CALCULATE(SUM('Sheet4b-BrandPerformance'[Lines]),'Sheet4b-BrandPerformance'[PieceBand]=""3+ Pieces"")",0
+89,Sheet4b-BrandPerformance,3+ Piece Rate,Product Mix (Charts),clusteredBarChart; lineClusteredColumnComboChart,"DIVIDE(
+				    CALCULATE(SUM('Sheet4b-BrandPerformance'[Lines]), 'Sheet4b-BrandPerformance'[PieceBand]=""3+ Pieces""),
+				    SUM('Sheet4b-BrandPerformance'[Lines])
+				)",0%;-0%;0%

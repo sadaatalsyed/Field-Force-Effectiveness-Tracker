@@ -1,44 +1,36 @@
-# Visual walkthrough — all 10 observed report pages
+# Report walkthrough — 10 original Power BI pages
 
-Browse the [public-safe schematic gallery](REPORT_GALLERY.md) for five illustrated report-layout previews. They are **not original report screenshots**.
+This guide references the **actual PDF screenshots now hosted in this repository**, alongside the **90 DAX measure definitions extracted from user-provided TMDL** and visual metadata extracted from the accompanying PBIX. Screenshots are partially redacted for privacy; these are not mockup previews.
 
-The mappings below come from the **actual report page names and field/measure references found in the uploaded PBIX report definition**, cross-checked against the PDF. They are not guessed visual requirements. The uploaded PDF provides the visual appearance; confidential rows have been kept out of the public repository.
+| PDF page | Report page | Original evidence | Business purpose |
+|---|---|---|---|
+| 1 | KPI Business Rules | [View capture](../assets/screenshots/01-kpi-business-rules.jpg) | 68 displayed rule definitions (some detail rows clipped) |
+| 2 | Executive Overview | [View capture](../assets/screenshots/02-executive-overview.jpg) | Regional sales and field execution diagnostic overview |
+| 3 | Daily Sales — Charts | [View capture](../assets/screenshots/03-daily-sales-charts.jpg) | Delivery against booking; App/Web, Pareto and operational gaps |
+| 4 | Route Execution — Charts | [View capture](../assets/screenshots/04-route-execution-charts.jpg) | PJP vs actual coverage, strikes, productive calls and possible missed orders |
+| 5 | Market Time & GPS — Charts | [View capture](../assets/screenshots/05-market-time-gps-charts.jpg) | Field time, shop time, idle, GPS coverage and 100m compliance |
+| 6 | Product Mix — Charts | [View capture](../assets/screenshots/06-product-mix-charts.jpg) | Distinct brands/segments/variants, cross-sell and piece bands |
+| 7 | Daily Sales — Matrix | [View capture](../assets/screenshots/07-daily-sales-matrix.jpg) | Organization-to-OB breakdown of booked/delivered and channel values |
+| 8 | Route Execution — Matrix | [View capture](../assets/screenshots/08-route-execution-matrix.jpg) | Detailed planned/actual, productive, strike and GPS analysis |
+| 9 | Market Time & GPS — Matrix | [View capture](../assets/screenshots/09-market-time-gps-matrix.jpg) | Detailed field/trade/shop time, idle and GPS |
+| 10 | Product Mix — Matrix | [View capture](../assets/screenshots/10-product-mix-matrix.jpg) | Detailed assortment and product-piece analysis |
 
-| PDF page | Power BI page | Audience / analytical goal | Confirmed visual patterns |
-|---:|---|---|---|
-| 1 | KPI Business Rules | All viewers; consistent KPI interpretation | Rules table with formula, assumptions, subtotal logic and date basis |
-| 2 | Overview | Directors and regional managers | Regional sales comparisons, KPI matrix, combo trends, donut, funnel, decomposition tree |
-| 3 | Daily Sales (Charts) | Sales leadership | Pareto 80/20 composition, App/Web cards, execution trend, orderbooker detail, decomposition |
-| 4 | Route Execution (Charts) | Field operations leaders | PJP vs visited trend, small-bill mix, productive visits by role, missed-order opportunity |
-| 5 | Market Time & GPS (Charts) | Field execution / audit | GPS availability funnel, idle/market time cards, hierarchy comparisons and trends |
-| 6 | Product Mix (Charts) | Category / distribution managers | Brand piece-band distribution, cross-brand %, 3+ rate, product-depth cards |
-| 7 | Daily Sales Performance | Analysts and sales managers | Full-width organization-to-OB matrix: booking, delivery, App/Web, 80/20 |
-| 8 | Route Execution & Productivity | Distribution managers | Full-width PJP, visits, strikes, 100m, low-bill and productivity matrix |
-| 9 | Market Time & GPS | Trade execution leaders | Full-width start/end, field/trade/idle, shop time, distance, GPS matrix |
-| 10 | Product Mix & Brand Performance | Sales/category analysts | Full-width brands/segments/variants, piece bands and cross-brand matrix |
+## Verified DAX expression → visual use
 
-## Screenshot ↔ DAX binding examples, verified against PBIX metadata
+These formula names and logic are now **exact TMDL source**, not speculative examples. Visual mappings come from actual PBIX report JSON, see [90-measure mapping](MEASURE_VISUAL_MAPPING.md).
 
-| Page / visual type | Specific bound fields or measures | What the audience sees |
+| Domain | Original model measure | Explanation |
 |---|---|---|
-| Overview — regional clustered chart | `PJP Compliance %`, `StrikeRate% Overall`, `GPS Compliance %`, region | A regional comparison across three execution-quality dimensions |
-| Overview — decomposition tree | `Cross Brand Selling %`, `Avg Brands Per Bill`, region/territory/distributor/OB | Explaining where cross-brand selling differs |
-| Daily Sales — 100% stacked bar | `Outlets Contributing 80% (BookedSales)`, `Outlets Contributing 20% (BookedSales)` | Concentration of outlet contribution to booked value |
-| Daily Sales — combo trend | `LostSalesDueToOperationsPKR`, `TodayOrderBookedPKR`, `Order vs Execution % (Today)` | Booking-delivery execution and operational loss signals |
-| Route — matrix | `PlannedShopsInPJP`, `TotalVisitsPlanned_InclNonProductive`, `PJP Compliance %`, `ProductiveOutletsOverall` | Planning versus actual visitation and conversion |
-| Route — trend | `ProductiveCallsPerHour`, `PlannedShopsInPJP`, `TotalVisitsPlanned_InclNonProductive` | Productivity alongside planned route activity |
-| Market Time — time comparison | `Field Time (HH:MM) Derived`, `Trade Time Median`, `Active Market Time Median`, `Longest Idle Period max` | Separating field presence from useful work |
-| Market Time — GPS funnel | `TotalStopsMade`, `Shops With GPS`, `Shops Without GPS`, `ProductiveStopsMade`, `ValidGPSCount` | Funnel of availability/accuracy/productive stops |
-| Product Mix — piece bands | `Brand`, `PieceBand`, `Lines` | 1 / 2 / 3+ pieces by brand |
-| Product Mix — depth bar | `Brand`, `3+ Piece Rate` | Basket-depth comparison |
-| Product Mix — scorecard | `Avg Brands Per Bill`, `Avg Segments Per Bill`, `Avg Variance Per Bill`, `Cross Brand Selling %` | Bill depth and breadth |
+| Daily Sales | `Order vs Execution % (Today)` | Delivered NetAmount relative to booked value; ratio-of-sums |
+| Route Execution | `PJP Compliance %` | Planned visits (including nonproductive visits) ÷ PJP shops |
+| Route Execution | `StrikeRate% Overall` | Productive outlets ÷ total visited outlets subject to planned-visit guards |
+| Market & GPS | `GPS Compliance %` | ValidGPSCount ÷ ShopsVisitedWithGPS; reflects validity conditional on GPS availability |
+| Market & GPS | `Field Time (HH:MM)` | Median of daily field time seconds with display formatting |
+| Product Mix | `Avg Brands Per Bill` | Total brands across invoices ÷ bill count |
+| Brand Mix | `3+ Piece Rate` | Fraction of invoice-brand observations with 3+ pieces |
 
-**Report metadata says how a measure is used in visuals, not what its DAX expression is.** Some visuals bind source columns directly, while others bind DAX measures. The actual semantic expressions need TMDL export for 100% accuracy.
+**Original DAX source:** [Verbatim TMDL](../dax/original-tmdl-export.txt). **Lineage and caveats:** [DAX explained](DAX_EXPLAINED.md), [data quality](DATA_QUALITY.md).
 
-## Narrative: reading the report as a manager
+## Confidentiality and evidence
 
-Start from Overview, identify which regional measure is off-target, enter the relevant domain's chart page, then open the corresponding detailed matrix. The hierarchy is not just navigation — it is the reconciliation path from aggregate symptoms to a specific OB/day.
-
-## Visual gallery status
-
-A set of **10 rendered images from the provided PDF**, including redacted detail-matrix screenshots, is included in the accompanying local asset package prepared for manual binary upload. This GitHub connector can write source text but does **not** accept local PNG/WEBP bytes in this workflow, so the true screenshots are not misrepresented as already hosted here. The SVGs in the gallery are **original explanatory illustrations, not the PDF screenshots**.
+Images are source-derived from the original dashboard PDF and partially redacted. Do not represent them as a live, interactively tested dashboard or share identifying figures without client permission. The report's 68 KPI rule-count is different from the model's 90 measures.

@@ -1,0 +1,106 @@
+# ORIGINAL DAX EXPRESSIONS — Extracted from user-supplied TMDL
+# Table: Sheet2-RouteExecution
+# Exact source expressions kept, not refactored. Some may have known logic concerns.
+
+// Avg Order Prod. Outlets
+Avg Order Prod. Outlets =
+DIVIDE(SUM('Sheet2-RouteExecution'[TotalProductiveOrderValue]),SUM('Sheet2-RouteExecution'[ProductiveOutletsOverall]),0)
+
+// Execution_Status_Flag
+Execution_Status_Flag =
+VAR PJP = [PJP Compliance %]
+				VAR Strike = [StrikeRate% Overall]
+				RETURN
+				SWITCH(
+				    TRUE(),
+				    PJP >= 95 && Strike >= 65, "#2E7D32", -- Green (On Track)
+				    PJP >= 90 || Strike >= 60, "#F57C00", -- Amber (Watch)
+				    "#C62828"                             -- Red (Action Needed)
+				)
+
+// Missed Possible order value
+Missed Possible order value =
+Var Missed=SUM('Sheet2-RouteExecution'[MissedOutlets])* [Avg Order Prod. Outlets]
+				Return 
+				iF(
+				    ISBLANK(Missed),"",Missed
+				)
+
+// OB Execution Status
+OB Execution Status =
+VAR _pjp = [PJP Compliance %]
+				VAR _strike = [StrikeRate% Overall]
+				RETURN
+				SWITCH(
+				    TRUE(),
+				    ISBLANK(_pjp) ,"",
+				    _pjp >= 0.95 && _strike >= 0.65, "On track",
+				    _pjp >= 0.90 || _strike >= 0.60, "Watch",
+				    "Action needed"
+				)
+
+// OBs Worked s2
+OBs Worked s2 =
+DISTINCTCOUNT('Sheet2-RouteExecution'[OBCode])
+
+// PJP Compliance %
+PJP Compliance % =
+DIVIDE(SUM('Sheet2-RouteExecution'[TotalVisitsPlanned_InclNonProductive]),SUM('Sheet2-RouteExecution'[PlannedShopsInPJP]),0)
+
+// PJP Status
+PJP Status =
+VAR _pjp = COALESCE([PJP Compliance %],"")
+				RETURN
+				SWITCH(
+				    TRUE(),
+				    ISBLANK(_pjp) || _pjp ="", " ",
+				    _pjp >= 0.95, "On track",
+				    _pjp >= 0.90, "Watch",
+				    _pjp <= 0.90,"Action needed"
+				)
+
+// Planned Productive
+Planned Productive =
+SUM('Sheet2-RouteExecution'[PlannedProductiveShopsApp])+SUM('Sheet2-RouteExecution'[PlannedProductiveShopsWeb])
+
+// Productive Outlets over500 bil%
+Productive Outlets over500 bil% =
+DIVIDE(SUM('Sheet2-RouteExecution'[ProductiveOutletsOver500Bill]),SUM('Sheet2-RouteExecution'[ProductiveOutletsOverall]),0)
+
+// Productive Outlets under500 bil%
+Productive Outlets under500 bil% =
+DIVIDE(SUM('Sheet2-RouteExecution'[ProductiveOutletsUnder500Bill]),SUM('Sheet2-RouteExecution'[ProductiveOutletsOverall]),0)
+
+// StrikeRate% Overall
+StrikeRate% Overall =
+VAR _PlannedOutlets =
+				    SUM('Sheet2-RouteExecution'[PlannedShopsInPJP])
+				VAR _PlannedVisits =
+				    SUM('Sheet2-RouteExecution'[TotalVisitsPlanned_InclNonProductive])
+				RETURN
+				IF(
+				    _PlannedOutlets = 0 || _PlannedVisits = 0,
+				    0,
+				    DIVIDE(
+				        SUM('Sheet2-RouteExecution'[ProductiveOutletsOverall]),
+				        SUM('Sheet2-RouteExecution'[TotalVisits_InclNonProductive]),
+				        0
+				    )
+				)
+
+// StrikeRate% Under 100m
+StrikeRate% Under 100m =
+VAR _PlannedOutlets =
+				    SUM('Sheet2-RouteExecution'[PlannedShopsInPJP])
+				VAR _PlannedVisits =
+				    SUM('Sheet2-RouteExecution'[TotalVisitsPlanned_InclNonProductive])
+				RETURN
+				IF(
+				    _PlannedOutlets = 0 || _PlannedVisits = 0,
+				    0,
+				    DIVIDE(
+				        SUM('Sheet2-RouteExecution'[ProductiveOutletsUnder100m]),
+				        SUM('Sheet2-RouteExecution'[TotalVisits_InclNonProductive]),
+				        0
+				    )
+				)

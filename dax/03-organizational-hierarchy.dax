@@ -1,0 +1,22 @@
+# ORIGINAL DAX EXPRESSIONS — Extracted from user-supplied TMDL
+# Table: Org_hierarchy
+# Exact source expressions kept, not refactored. Some may have known logic concerns.
+
+// ActiveOrderbookers (TM Restricted)
+ActiveOrderbookers (TM Restricted) =
+VAR TM =
+				    SELECTEDVALUE(Org_hierarchy[TMUsername])
+				RETURN
+				IF(
+				    NOT ISBLANK(TM),
+				    CALCULATE(
+				        DISTINCTCOUNT(Org_hierarchy[OB Code]),
+				        REMOVEFILTERS(Org_hierarchy),
+				        Org_hierarchy[TMUsername] = TM
+				    ),
+				    DISTINCTCOUNT(Org_hierarchy[OB Code])
+				)
+
+// OBs Overall
+OBs Overall =
+DISTINCTCOUNT(Org_hierarchy[OB Code])

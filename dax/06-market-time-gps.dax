@@ -1,0 +1,571 @@
+# ORIGINAL DAX EXPRESSIONS — Extracted from user-supplied TMDL
+# Table: Sheet3-MarketTime&GPS
+# Exact source expressions kept, not refactored. Some may have known logic concerns.
+
+// % Shops Without GPS
+% Shops Without GPS =
+VAR NoGPS = SUM('Sheet3-MarketTime&GPS'[ShopsVisitedWithoutGPS])
+				VAR TotalStops = SUM('Sheet3-MarketTime&GPS'[TotalStopRows])
+				RETURN
+				IF(
+				    TotalStops = 0,
+				    "-",
+				    ROUND(DIVIDE(NoGPS, TotalStops) * 100, 2) & "%"
+				)
+
+// Active Market Time (HH:MM)
+Active Market Time (HH:MM) =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[ActiveMarketTime_HHMM])
+				    )
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[ActiveMarketTime_HHMM])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    "",
+				    FORMAT(INT(MedianSeconds / 3600), "00") & ":" & FORMAT(MOD(INT(MedianSeconds / 60), 60), "00")
+				)
+
+// Active Market Time Median
+Active Market Time Median =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[ActiveMarketTime_HHMM])
+				    )
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[ActiveMarketTime_HHMM])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    "",
+				    MedianSeconds
+				)
+
+// Avg Stops per Day
+Avg Stops per Day =
+AVERAGEX(
+				    VALUES('Date Table'[Date]),
+				    CALCULATE(SUM('Sheet3-MarketTime&GPS'[TotalStopsMade]))
+				)
+
+// Avg Time Between Visits (Minutes)
+Avg Time Between Visits (Minutes) =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[AvgTimeBetweenVisitsMinutes])
+				    )
+				VAR MedianValue =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[AvgTimeBetweenVisitsMinutes])
+				    )
+				RETURN
+				IF(ISBLANK(MedianValue), "", ROUND(MedianValue, 2) & " min")
+
+// Avg Time Between Visits (Seconds)
+Avg Time Between Visits (Seconds) =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[AvgTimeBetweenVisitsMinutes])
+				    )
+				
+				VAR MedianValue =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(
+				            ValidRows,
+				            'Sheet3-MarketTime&GPS'[AvgTimeBetweenVisitsMinutes]
+				        )
+				    )
+				
+				RETURN
+				IF(
+				    ISBLANK(MedianValue),
+				    BLANK(),
+				    INT(MedianValue * 60)
+				)
+
+// Before/After Field Time (HH:MM)
+Before/After Field Time (HH:MM) =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM])
+				            && NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInTrade_HHMM])
+				    )
+				
+				VAR MedianDifference =
+				    MEDIANX(
+				        ValidRows,
+				        'Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM]
+				            - 'Sheet3-MarketTime&GPS'[TotalTimeSpentInTrade_HHMM]
+				    )
+				
+				RETURN
+				IF(
+				    ISBLANK(MedianDifference),
+				    "",
+				    FORMAT(INT(MedianDifference / 3600), "00")
+				        & ":"
+				        & FORMAT(MOD(INT(MedianDifference / 60), 60), "00")
+				)
+
+// Before/After Field Time (seconds)
+Before/After Field Time (seconds) =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM])
+				            && NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInTrade_HHMM])
+				    )
+				
+				VAR MedianDifference =
+				    MEDIANX(
+				        ValidRows,
+				        'Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM]
+				            - 'Sheet3-MarketTime&GPS'[TotalTimeSpentInTrade_HHMM]
+				    )
+				
+				RETURN
+				IF(
+				    ISBLANK(MedianDifference),
+				    BLANK(),
+				    INT(MedianDifference)
+				)
+
+// Data Quality
+Data Quality =
+VAR _fieldTime = [Field Time (HH:MM)]
+				VAR _gps = [GPS Compliance %]
+				RETURN
+				SWITCH(
+				    TRUE(),
+				    ISBLANK(_fieldTime) || _fieldTime=""  , "absent",
+				    _gps >= 0.85, "Reliable",
+				    _gps >= 0.75, "Gaps",
+				    "Unreliable"
+				)
+
+// Day End (Median Time)
+Day End (Median Time) =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[DayEnd])
+				    )
+				Return
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[DayEnd], 1))
+				    )
+
+// Day End (Median Time) Display
+Day End (Median Time) Display =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[DayEnd])
+				    )
+				VAR MedianFraction =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[DayEnd], 1))
+				    )
+				RETURN
+				IF(ISBLANK(MedianFraction), "", FORMAT(MedianFraction, "hh:mm AM/PM"))
+
+// Day Start (Median Time)
+Day Start (Median Time) =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[DayStart])
+				    )
+				RETURN
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[DayStart], 1))
+				    )
+
+// Day Start (Median Time) Display
+Day Start (Median Time) Display =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[DayStart])
+				    )
+				VAR MedianFraction =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[DayStart], 1))
+				    )
+				RETURN
+				IF(ISBLANK(MedianFraction), "", FORMAT(MedianFraction, "hh:mm AM/PM"))
+
+// Field Time (HH:MM)
+Field Time (HH:MM) =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM])
+				    )
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    "",
+				    FORMAT(INT(MedianSeconds / 3600), "00") & ":" & FORMAT(MOD(INT(MedianSeconds / 60), 60), "00")
+				)
+
+// Field Time (HH:MM) Derived
+Field Time (HH:MM) Derived =
+VAR MedStart = [Day Start (Median Time)]   -- fraction value, not the "-" text version
+				VAR MedEnd   = [Day End (Median Time)]
+				RETURN
+				IF(
+				    OR(ISBLANK(MedStart), ISBLANK(MedEnd)),
+				    "",
+				    VAR DiffSeconds = (MedEnd - MedStart) * 86400
+				    RETURN FORMAT(INT(DiffSeconds / 3600), "00") & ":" & FORMAT(MOD(INT(DiffSeconds / 60), 60), "00")
+				)
+
+// Field Time Median
+Field Time Median =
+VAR MedStart = [Day Start (Median Time)]   -- fraction value, not the "-" text version
+				VAR MedEnd   = [Day End (Median Time)]
+				RETURN
+				IF(
+				    OR(ISBLANK(MedStart), ISBLANK(MedEnd)),
+				    "",
+				     (MedEnd - MedStart) * 86400
+				)
+
+// First Shop Called At (Median Time)
+First Shop Called At (Median Time) =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[FirstShopCalledAt])
+				    )
+				RETURN
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[FirstShopCalledAt], 1))
+				    )
+
+// First Shop Called At (Median Time) Display
+First Shop Called At (Median Time) Display =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[FirstShopCalledAt])
+				    )
+				VAR MedianFraction =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[FirstShopCalledAt], 1))
+				    )
+				RETURN
+				IF(ISBLANK(MedianFraction), "", FORMAT(MedianFraction, "hh:mm AM/PM"))
+
+// GPS Compliance %
+GPS Compliance % =
+DIVIDE(SUM('Sheet3-MarketTime&GPS'[ValidGPSCount]),SUM('Sheet3-MarketTime&GPS'[ShopsVisitedWithGPS]),0)
+
+// Last Shop Called At (Median Time)
+Last Shop Called At (Median Time) =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[LastShopCalledAt])
+				    )
+				RETURN
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[LastShopCalledAt], 1))
+				    )
+
+// Last Shop Called At (Median Time) Display
+Last Shop Called At (Median Time) Display =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[LastShopCalledAt])
+				    )
+				VAR MedianFraction =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[LastShopCalledAt], 1))
+				    )
+				RETURN
+				IF(ISBLANK(MedianFraction), "", FORMAT(MedianFraction, "hh:mm AM/PM"))
+
+// Last Shop Completed At (Median Time)
+Last Shop Completed At (Median Time) =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[LastShopCompletedAt])
+				    )
+				RETURN
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[LastShopCompletedAt], 1))
+				    )
+
+// Last Shop Completed At (Median Time) Display
+Last Shop Completed At (Median Time) Display =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[LastShopCompletedAt])
+				    )
+				VAR MedianFraction =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[LastShopCompletedAt], 1))
+				    )
+				RETURN
+				IF(ISBLANK(MedianFraction), "", FORMAT(MedianFraction, "hh:mm AM/PM"))
+
+// Longest Idle Period (HH:MM:SS)
+Longest Idle Period (HH:MM:SS) =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[LongestIdlePeriod_HHMMSS])
+				    )
+				VAR MaxSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MAXX(ValidRows, 'Sheet3-MarketTime&GPS'[LongestIdlePeriod_HHMMSS])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MaxSeconds),
+				    "",
+				    FORMAT(INT(MaxSeconds / 3600), "00") & ":" & 
+				    FORMAT(MOD(INT(MaxSeconds / 60), 60), "00") & ":" & 
+				    FORMAT(MOD(INT(MaxSeconds), 60), "00")
+				)
+
+// Longest Idle Period max
+Longest Idle Period max =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[LongestIdlePeriod_HHMMSS])
+				    )
+				VAR MaxSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MAXX(ValidRows, 'Sheet3-MarketTime&GPS'[LongestIdlePeriod_HHMMSS])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MaxSeconds),
+				    "",
+				   MaxSeconds
+				)
+
+// Median Shop Time (HH:MM:SS)
+Median Shop Time (HH:MM:SS) =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[MedianTimePerShop_HHMMSS])
+				    )
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[MedianTimePerShop_HHMMSS])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    "",
+				    FORMAT(INT(MedianSeconds / 3600), "00") & ":" & 
+				    FORMAT(MOD(INT(MedianSeconds / 60), 60), "00") & ":" & 
+				    FORMAT(MOD(INT(MedianSeconds), 60), "00")
+				)
+
+// No GPS %
+No GPS % =
+DIVIDE(SUM('Sheet3-MarketTime&GPS'[ShopsVisitedWithoutGPS]),SUM('Sheet3-MarketTime&GPS'[TotalStopRows]),0)
+
+// OBs Worked s3
+OBs Worked s3 =
+DISTINCTCOUNT('Sheet3-MarketTime&GPS'[OBCode])
+
+// Shop Time (HH:MM)
+Shop Time (HH:MM) =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInShops_HHMM])
+				    )
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[TotalTimeSpentInShops_HHMM])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    "",
+				    FORMAT(INT(MedianSeconds / 3600), "00") & ":" & FORMAT(MOD(INT(MedianSeconds / 60), 60), "00")
+				)
+
+// Shop Time (Seconds) Derived
+Shop Time (Seconds) Derived =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInShops_HHMM])
+				    )
+				
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(
+				            ValidRows,
+				            'Sheet3-MarketTime&GPS'[TotalTimeSpentInShops_HHMM]
+				        )
+				    )
+				
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    BLANK(),
+				    INT(MedianSeconds)
+				)
+
+// Shop Time %
+Shop Time % =
+VAR TotalShopTime = SUM('Sheet3-MarketTime&GPS'[TotalTimeSpentInShops_HHMM])
+				VAR TotalFieldTime = SUM('Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM])
+				RETURN
+				IF(
+				    TotalFieldTime = 0,
+				    "",
+				    ROUND(DIVIDE(TotalShopTime, TotalFieldTime,0), 3)
+				)
+
+// Shops With GPS
+Shops With GPS =
+VAR TotalCount = SUM('Sheet3-MarketTime&GPS'[ShopsVisitedWithGPS])
+				RETURN
+				IF(TotalCount = 0, "", TotalCount)
+
+// Shops Without GPS
+Shops Without GPS =
+SUM('Sheet3-MarketTime&GPS'[ShopsVisitedWithoutGPS])
+
+// Total Idle Period (HH:MM)
+Total Idle Period (HH:MM) =
+VAR TotalSeconds = MEDIAN('Sheet3-MarketTime&GPS'[TotalIdlePeriod_HHMM])
+				RETURN
+				IF(
+				    ISBLANK(TotalSeconds) || TotalSeconds = 0,
+				    "",
+				    FORMAT(INT(TotalSeconds / 3600), "00") & ":" & FORMAT(MOD(INT(TotalSeconds / 60), 60), "00")
+				)
+
+// Total Idle Period (Seconds) Derived
+Total Idle Period (Seconds) Derived =
+VAR MedianIdleSeconds =
+				    MEDIAN('Sheet3-MarketTime&GPS'[TotalIdlePeriod_HHMM])
+				
+				RETURN
+				IF(
+				    ISBLANK(MedianIdleSeconds) || MedianIdleSeconds = 0,
+				    BLANK(),
+				    INT(MedianIdleSeconds)
+				)
+
+// Total Idle Period (Seconds) Median
+Total Idle Period (Seconds) Median =
+VAR MedianIdleSeconds =
+				    MEDIAN('Sheet3-MarketTime&GPS'[TotalIdlePeriod_HHMM])
+				
+				RETURN
+				    INT(MedianIdleSeconds)
+
+// Trade Time (HH:MM)
+Trade Time (HH:MM) =
+VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInTrade_HHMM])
+				    )
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[TotalTimeSpentInTrade_HHMM])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    "",
+				    FORMAT(INT(MedianSeconds / 3600), "00") & ":" & FORMAT(MOD(INT(MedianSeconds / 60), 60), "00")
+				)
+
+// Trade Time (HH:MM) Derived
+Trade Time (HH:MM) Derived =
+VAR MedStart = [First Shop Called At (Median Time)]   -- fraction value, not the "-" text version
+				VAR MedEnd   = [Last Shop Completed At (Median Time)]
+				RETURN
+				IF(
+				    OR(ISBLANK(MedStart), ISBLANK(MedEnd)),
+				    "",
+				    VAR DiffSeconds = (MedEnd - MedStart) * 86400
+				    RETURN FORMAT(INT(DiffSeconds / 3600), "00") & ":" & FORMAT(MOD(INT(DiffSeconds / 60), 60), "00")
+				)
+
+// Trade Time Median
+Trade Time Median =
+VAR MedStart = [First Shop Called At (Median Time)]   -- fraction value, not the "-" text version
+				VAR MedEnd   = [Last Shop Completed At (Median Time)]
+				RETURN
+				IF(
+				    OR(ISBLANK(MedStart), ISBLANK(MedEnd)),
+				    "",
+				     (MedEnd - MedStart) * 86400
+				)

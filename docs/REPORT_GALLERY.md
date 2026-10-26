@@ -1,32 +1,48 @@
-# Report gallery — visual storytelling
+# Actual Power BI report screenshots — captured from the user-supplied PDF
 
-> **These five SVGs are new schematic illustrations of the report layouts. They are not screenshots, and contain no original performance data.** The supplied PDF was inspected and has **10 actual pages**. Redacted original captures were prepared separately as a local binary package; they were not pushed into this public repository.
+> These are **real report page captures**, not AI-generated or schematic graphics. Selected confidential rows, staff labels and brand areas have been obscured for public portfolio use. They are static evidence of visual design, not a live report.
 
-## Executive overview
-![Overview illustration](../assets/report-previews/01-overview.svg)
+## KPI Business Rules
+![Actual KPI Business Rules screenshot](../assets/screenshots/01-kpi-business-rules.jpg)
+**Managerial purpose:** definitions, formulas and rollup assumptions.
 
-**Decision:** Identify the region or distribution where outcomes, route execution and compliance diverge.
+## Executive Overview
+![Actual Executive Overview screenshot](../assets/screenshots/02-executive-overview.jpg)
+**Managerial purpose:** performance signal and execution funnel.
 
-## Daily Sales Performance
-![Daily sales illustration](../assets/report-previews/02-daily-sales.svg)
+## Daily Sales Performance — Charts
+![Actual Daily Sales Performance — Charts screenshot](../assets/screenshots/03-daily-sales-charts.jpg)
+**Managerial purpose:** booked/delivered, Pareto, execution.
 
-**Visual metrics:** Booked and delivered sales, execution %, App/Web, top-80% value outlet concentration, operational gap.
+## Route Execution & Productivity — Charts
+![Actual Route Execution & Productivity — Charts screenshot](../assets/screenshots/04-route-execution-charts.jpg)
+**Managerial purpose:** PJP, productive calls, missed opportunity.
 
-## Route Execution & Productivity
-![Route illustration](../assets/report-previews/03-route-execution.svg)
+## Market Time & GPS — Charts
+![Actual Market Time & GPS — Charts screenshot](../assets/screenshots/05-market-time-gps-charts.jpg)
+**Managerial purpose:** field/trade time, GPS validity, inactive gaps.
 
-**Visual metrics:** Planned shops, route compliance, productive and nonproductive outlet counts, productive calls/hour, GPS-verified productive visits.
+## Product Mix & Brand Performance — Charts
+![Actual Product Mix & Brand Performance — Charts screenshot](../assets/screenshots/06-product-mix-charts.jpg)
+**Managerial purpose:** brands per bill, piece bands, cross selling.
 
-## Market Time & GPS
-![Market time illustration](../assets/report-previews/04-market-time-gps.svg)
+## Daily Sales Performance — Detail
+![Actual Daily Sales Performance — Detail screenshot](../assets/screenshots/07-daily-sales-matrix.jpg)
+**Managerial purpose:** auditable breakdown at reporting hierarchy.
 
-**Visual metrics:** Day start/end, field/trade/active/shop times, idle gaps (5-minute normal-transition allowance), 100m location compliance and GPS availability.
+## Route Execution & Productivity — Detail
+![Actual Route Execution & Productivity — Detail screenshot](../assets/screenshots/08-route-execution-matrix.jpg)
+**Managerial purpose:** route / planned vs actual table.
 
-## Product Mix & Brand Performance
-![Product mix illustration](../assets/report-previews/05-product-mix.svg)
+## Market Time & GPS — Detail
+![Actual Market Time & GPS — Detail screenshot](../assets/screenshots/09-market-time-gps-matrix.jpg)
+**Managerial purpose:** median time and GPS matrix.
 
-**Visual metrics:** Brands per bill, segments per bill, variants per bill, cross-brand share and brand-level 1 / 2 / 3+ piece bands.
+## Product Mix & Brand Performance — Detail
+![Actual Product Mix & Brand Performance — Detail screenshot](../assets/screenshots/10-product-mix-matrix.jpg)
+**Managerial purpose:** product assortment table.
 
-## Original report-page inventory
 
-The **real report** also has one KPI Business Rules page and four full-width detail-matrix pages. Refer to the [10-page observed report mapping](VISUAL_WALKTHROUGH.md) and the [KPI source guide](KPI_DICTIONARY.md). The schematic diagrams above do not imply exact numerical values or original layout pixel fidelity.
+## Linking measures to what is shown
+
+The [measure-to-visual matrix](MEASURE_VISUAL_MAPPING.md) is derived from both **Power BI report JSON** and the **actual TMDL formulas**. Read the [case study](CASE_STUDY.md) for end-to-end decision workflow.
