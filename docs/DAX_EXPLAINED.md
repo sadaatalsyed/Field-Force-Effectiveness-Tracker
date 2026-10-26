@@ -1,96 +1,81 @@
-# DAX explained — measure lineage and visuals
+# Verified DAX — 90 measures from uploaded TMDL
 
-## What is truly extracted versus illustrative?
+The user-supplied `DAX(1).txt` is a **readable TMDL script**, not a compressed PBIX model. It contains **90 original measures across 8 table groups**. We have extracted and grouped every measure **without silently fixing the business logic**. See [all source expressions](../dax/original-tmdl-export.txt), [measure catalog](MEASURE_VISUAL_MAPPING.md) and per-domain `dax/*.dax`.
 
-| Evidence class | Available | How to interpret |
-|---|---|---|
-| **Source SQL** | Yes, six original attached text files | Underlying queries supplied by the analyst; this repo preserves them |
-| **Power BI report-definition visual bindings** | Yes, from report JSON embedded in uploaded PBIX | Confirms page → visual → bound measure or source column |
-| **Original DAX from previous repo history** | Deleted from the current tree as requested | It is not treated as evidence of the uploaded PBIX semantic expressions |
-| **Original DAX formula text inside attached PBIX** | **Not extractable with available runtime** | Embedded DataModel is XPress9-compressed; report-definition JSON contains **names** but not semantic formula text |
-| **Additional DAX in this repo** | Yes, [illustrative patterns](../dax/illustrative-patterns.dax) | Clearly labeled reference implementation, **not claimed to be extracted from the PBIX** |
+## Three levels of evidence
 
-## Worked examples and visual use
+1. **Exact DAX**: 90 expressions reproduced from TMDL, including intentional blanks, text formatting and pre-existing calculation choices.
+2. **Visual bindings**: report JSON identifies which of these names is referenced on each actual chart or matrix. It cannot prove a measure is computed correctly.
+3. **SQL lineage**: six supplied extracts show source joins, invoice grain, visit sequencing, business flags and daily aggregation. Their tests are not executable without the client database.
 
-### PJP compliance — route matrix, Overview regional chart
-**Meaning:** share of PJP shops actually visited, including nonproductive recorded visits if the business definition requires actual coverage rather than sale creation.
+## Practical measure walkthroughs
 
-```dax
-PJP Compliance % (illustrative) =
-DIVIDE (
-    SUM ( RouteDaily[TotalVisitsPlanned_InclNonProductive] ),
-    SUM ( RouteDaily[PlannedShopsInPJP] )
-)
-```
-Do **not** take `AVERAGE(RouteDaily[PJPCompliancePercent])` across OBs with different numbers of planned outlets.
+### 1. Sales — booked vs delivery execution
 
-### Strike Rate — region comparison, route performance matrix
-```dax
-Strike Rate % (illustrative) =
-DIVIDE (
-    SUM ( RouteDaily[ProductiveOutletsOverall] ),
-    SUM ( RouteDaily[TotalVisits_InclNonProductive] )
-)
-```
-A source row may de-duplicate a customer within a day, so this is an **outlet-based** example; it is not interchangeable with order-event conversion.
-
-### GPS compliance — Market Time GPS funnel
-The **documented business definition** uses valid GPS count divided by shops with GPS. For a numeric visual, avoid concatenating `"%"` or returning `"-"`, because that converts the measure to text and impairs chart sorting/numeric scaling.
+**Original:** `Order vs Execution % (Today)` divides sum of delivered invoice value by sum of booked value. In Sales charts/Overview it lets business teams separate order capture from fulfillment.
 
 ```dax
-GPS Compliance % (numeric illustration) =
-DIVIDE (
-    SUM ( MarketDaily[ValidGPSCount] ),
-    SUM ( MarketDaily[ShopsWithGPS] )
-)
-```
-Format as percentage. Always display a separate no-GPS metric. The supplied SQL's `ValidGPSCount` is based on distinct customers in one workstream, not all raw check-in events.
-
-### Median field/trade duration — Market Time time-series
-Recommended median-duration reference pattern uses `MEDIANX` on `FieldTimeSeconds`, then formats hours/minutes. Crucially, duration medians operate on the **raw seconds column**, not a subtraction of two already aggregated medians. This supports the report's field-time and trade-time comparison visual.
-
-```dax
-Field Time Seconds (median illustration) =
-MEDIANX (
-    FILTER ( MarketDaily, NOT ISBLANK ( MarketDaily[FieldTimeSeconds] ) ),
-    MarketDaily[FieldTimeSeconds]
-)
-```
-A second *formatted display* measure is appropriate for a card or table; keep the numeric version for graphical axes.
-
-### Shop Time % — Market KPI card
-```dax
-Shop Time % (illustrative) =
-DIVIDE (
-    SUM ( MarketDaily[ShopTimeSeconds] ),
-    SUM ( MarketDaily[FieldTimeSeconds] )
+Order vs Execution % (Today) =
+DIVIDE(
+    SUM('Sheet1-DailySalesPerformance'[TotalSalesDelivered]),
+    SUM('Sheet1-DailySalesPerformance'[TodayOrderBookedPKR]),
+    0
 )
 ```
 
-### Cross-brand selling — Product Mix decomposition tree
+*Subtotal:* naturally uses ratio of sums, not average of orderbooker percentages. *Date caveat:* the daily Sales SQL filters `DeliveryDate`, so mixing booked and delivered values demands careful definition.
+
+### 2. Route — compliance versus conversion
+
 ```dax
-Cross Brand Selling % (illustrative) =
-DIVIDE (
-    SUM ( ProductMixDaily[CrossBrandBillCount] ),
-    SUM ( ProductMixDaily[BillCount] )
+PJP Compliance % =
+DIVIDE(
+    SUM('Sheet2-RouteExecution'[TotalVisitsPlanned_InclNonProductive]),
+    SUM('Sheet2-RouteExecution'[PlannedShopsInPJP]),
+    0
 )
 ```
 
-### Average brands / bill — Product Mix scorecards & drilldown
+This measures planned shop coverage regardless of sale outcome. `StrikeRate% Overall` divides productive visited outlets by all visited outlets, with a **zero guard tied to planned shops and planned visits**. Managers need both route and conversion to distinguish missed coverage from low conversion.
+
+### 3. Route — potential sales from missed outlets
+
+Original `Missed Possible order value` multiplies `SUM(MissedOutlets)` by `[Avg Order Prod. Outlets]`. This is an **opportunity proxy**, *not actual booked/lost revenue*, because it assumes a hypothetical outlet order size.
+
+### 4. Market Time — median, date stripping and text formatting
+
+The exported `[Day Start (Median Time)]` computes `MEDIANX(ValidRows, MOD(DayStart, 1))`, stripping date to compare clock times across reporting days. Duration measures use `MEDIANX` over seconds columns and sometimes `FORMAT` to display `HH:MM` or `HH:MM:SS`. **Display strings should not be graphed as numeric axis values.**
+
+`[Field Time Median]` in the actual TMDL is **median DayEnd minus median DayStart**, not the median of individual daily field durations; this difference matters and is flagged for QA. The separate `[Field Time (HH:MM)]` instead takes a median directly over daily duration seconds.
+
+### 5. GPS — accuracy versus availability
+
 ```dax
-Avg Brands Per Bill (illustrative) =
-DIVIDE (
-    SUM ( ProductMixDaily[TotalBrandsInBill] ),
-    SUM ( ProductMixDaily[BillCount] )
+GPS Compliance % =
+DIVIDE(
+    SUM('Sheet3-MarketTime&GPS'[ValidGPSCount]),
+    SUM('Sheet3-MarketTime&GPS'[ShopsVisitedWithGPS]),
+    0
 )
 ```
 
-## How to get **the actual complete DAX** without pretending
+This is **valid GPS / GPS-equipped visited shops**, not all stops. `[No GPS %]` uses `ShopsVisitedWithoutGPS / TotalStopRows` separately. Coordinate and repeat-visit definitions require SQL-to-visual reconciliation.
 
-1. Open the original `ICE Tracker(1).pbix` in **Power BI Desktop**.
-2. Save as a **Power BI Project (.pbip)** with semantic model stored as **TMDL**.
-3. Commit only **de-identified** `*.tmdl` metadata after verifying source strings, credentials, organization names, RLS and private entities.
-4. Reconcile every report-bound measure name against its actual `measure ... =` expression in TMDL.
-5. Then replace illustrative examples and mark the formula catalog *PBIX verified*. Never label an example as original until verified against that model.
+### 6. Brand depth — invoice-grain diversity
 
-References: [Microsoft Power BI Projects / TMDL](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-dataset), [pbi-tools extraction guide](https://pbi.tools/cli/usage.html).
+`[Avg Brands Per Bill]` is total distinct-brand-per-bill counts divided by bill count. `[Cross Brand Selling %]` is cross-brand bills divided by all bills. `[3+ Piece Rate]` uses the normalized invoice-brand piece-band dataset: count rows with `PieceBand = "3+ Pieces"` divided by all brand lines. These address deeper penetration, not just revenue.
+
+### 7. Executive segmentation — statuses
+
+`[OB Execution Status]` uses route compliance **0.95/0.90** and strike rate **0.65/0.60** as thresholds, returning On track / Watch / Action needed. In contrast, `[Execution_Status_Flag]` uses thresholds **95/90** and **65/60** on ratios whose formats suggest the 0–1 scale; the color logic is potentially defective. This remains unchanged in the source; see QA review.
+
+## Audit: source-specific observations (not silently corrected)
+
+- **Threshold scale mismatch:** `[Execution_Status_Flag]` compares `PJP >= 95` and `Strike >= 65`; `[OB Execution Status]` compares `>= 0.95` and `>= 0.65`. These are inconsistent for decimals formatted as percentages.
+- **Numerical vs text outcomes:** `% Shops Without GPS` returns `"-"` or text concatenated with `%`, while `No GPS %` returns a numeric ratio; avoid using the former for quantitative charts.
+- **Field Time Median:** `(MEDIAN(day_end_clock) - MEDIAN(day_start_clock)) * 86400` does not generally equal `MEDIAN(day_end - day_start)`.
+- **Cumulative date logic:** `Last12Days_Sales` and `Last12Days_Exec` combine `DATESINPERIOD()` with `ALL('Date Table')`; verify filter override behavior against the intended trailing 12-day window.
+- **Missing result policy:** Some measures return an empty string for missing numeric values; type coercion should be tested in totals, conditional formatting and charts.
+- **Not a composite score:** TMDL measures include component counts and statuses, but the provided source does not establish an implemented 35/30/20/15 score formula.
+
+**What has been verified:** semantic formula text and names, plus their static visual bindings. **What has not been verified:** calculation outputs in a running Power BI model, data accuracy, row-level security and measured real-world impact.

@@ -1,0 +1,1075 @@
+createOrReplace
+
+	ref table 'Business Rules'
+
+		measure 'Daily Sales KPIs' = CALCULATE(COUNT('Business Rules'[Report Name]),'Business Rules'[Report Name]="Daily Sales Performance")
+			formatString: 0
+			lineageTag: 99a54ef5-e0b2-4865-a986-c2dae1dffadd
+
+		measure 'Product Mix KPIs' = CALCULATE(COUNT('Business Rules'[Report Name]),'Business Rules'[Report Name]="Product Mix & Brand Performance")
+			formatString: 0
+			lineageTag: 131af5ce-c562-4146-960c-0e514a8e5acb
+
+		measure 'Route Execution KPIs' = CALCULATE(COUNT('Business Rules'[Report Name]),'Business Rules'[Report Name]="Route Execution & Productivity")
+			formatString: 0
+			lineageTag: 0453f915-abf2-467a-b82f-4c21a0b8ec49
+
+		measure 'Time Intelligence KPIs' = CALCULATE(COUNT('Business Rules'[Report Name]),'Business Rules'[Report Name]="Market Time & GPS")
+			formatString: 0
+			lineageTag: f79f558b-4b9d-4756-bb92-3012e9bb0bb3
+
+		measure 'Total KPIs Defined' = COUNT('Business Rules'[Report Name])
+			formatString: 0
+			lineageTag: 89586399-4b25-4c2d-85f1-e39f25b0cace
+
+	ref table 'Date Table'
+
+		measure Last12Days_Sales =
+				
+				VAR SelectedDay = MAX ( 'Date Table'[Date] )   -- jo slicer se select hoga
+				RETURN
+				CALCULATE (
+				     [Previous Day Order Booked],
+				    DATESINPERIOD ( 'Date Table'[Date], SelectedDay, -12, DAY ),
+				    ALL ( 'Date Table' )
+				)
+			lineageTag: 7c2785d0-8530-4ffa-8857-8eb95f6ab7e9
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	ref table Org_hierarchy
+
+		measure 'ActiveOrderbookers (TM Restricted)' =
+				
+				VAR TM =
+				    SELECTEDVALUE(Org_hierarchy[TMUsername])
+				RETURN
+				IF(
+				    NOT ISBLANK(TM),
+				    CALCULATE(
+				        DISTINCTCOUNT(Org_hierarchy[OB Code]),
+				        REMOVEFILTERS(Org_hierarchy),
+				        Org_hierarchy[TMUsername] = TM
+				    ),
+				    DISTINCTCOUNT(Org_hierarchy[OB Code])
+				)
+			formatString: 0
+			lineageTag: c3d2b022-2974-4944-94ff-d01a0d533acc
+
+		measure 'OBs Overall' = ```
+				
+				    DISTINCTCOUNT(Org_hierarchy[OB Code])
+				```
+			formatString: 0
+			lineageTag: 03f44309-5c45-4e57-b605-f0840d1a4763
+
+	ref table Sheet1-DailySalesPerformance
+
+		measure 'App Sales (Planned)' = SUM('Sheet1-DailySalesPerformance'[TotalAppSalesFromPlannedShopsPKR])
+			lineageTag: ae13329b-76dc-4999-9a86-e1b90ee797dd
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'App Sales (Planned) %' = DIVIDE(SUM('Sheet1-DailySalesPerformance'[TotalAppSalesFromPlannedShopsPKR]),SUM('Sheet1-DailySalesPerformance'[TotalAppSalesFromPlannedShopsPKR])+SUM('Sheet1-DailySalesPerformance'[TotalAppSalesFromUnplannedShopsPKR]),0)
+			formatString: 0.0%;-0.0%;0.0%
+			lineageTag: 7913ddc8-7e18-4de0-ab35-d0d8f24cb85f
+
+		measure 'App Sales (UnPlanned)' = SUM('Sheet1-DailySalesPerformance'[TotalAppSalesFromUnplannedShopsPKR])
+			lineageTag: c7b02905-2e52-4abc-b3ae-443cb149084a
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Avg Order Per Outlet (App)' = DIVIDE(SUM('Sheet1-DailySalesPerformance'[TotalSalesBookedForTheDayApp]),SUM('Sheet1-DailySalesPerformance'[AppOutletsVisited]),0)
+			lineageTag: ae9e0cec-be00-4fd3-9334-0c0cb0e17f3e
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Avg Order Per Outlet 20Pct' = DIVIDE(SUM('Sheet1-DailySalesPerformance'[ValueFromBottom20PctOutlets]),SUM('Sheet1-DailySalesPerformance'[OutletsContributing20PctValue]),0)
+			lineageTag: 8f017c04-1a21-4003-a2cf-d3352aab856d
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Avg Order Per Outlet 80Pct' = Coalesce(DIVIDE(SUM('Sheet1-DailySalesPerformance'[ValueFromTop80PctOutlets]),SUM('Sheet1-DailySalesPerformance'[OutletsContributing80PctValue]),0),"")
+			lineageTag: 0b90da05-d361-4044-a24c-d69eec358fb9
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure IsInLast12Days = ```
+				
+				VAR SelectedDay = 
+				    CALCULATE ( Min ( 'Date Table'[Date] ), ALLSELECTED ( 'Date Table' ) )
+				VAR CurrentAxisDate = Min ( 'Date Table'[Date] )
+				RETURN
+				IF ( CurrentAxisDate > SelectedDay - 12 && CurrentAxisDate <= SelectedDay, 1, 0 )
+				```
+			formatString: 0
+			lineageTag: aeceb74a-e749-4c4b-98b7-eded17b001ba
+
+		measure Last12Days_Exec =
+				
+				VAR SelectedDay = MAX ( 'Date Table'[Date] )   -- jo slicer se select hoga
+				RETURN
+				CALCULATE (
+				     [Order vs Execution % (Previous Day)],
+				    DATESINPERIOD ( 'Date Table'[Date], SelectedDay, -12, DAY ),
+				    ALL ( 'Date Table' )
+				)
+			lineageTag: c293f32d-4987-4573-b2e1-b82202b0506f
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'OB Contribution %' =
+				
+				DIVIDE(
+				    [Sales Booked (App)],
+				    CALCULATE(
+				        [Sales Booked (App)],
+				        REMOVEFILTERS(Org_hierarchy[OrderBooker]),REMOVEFILTERS(Org_hierarchy[OB Code])
+				    ),
+				    0
+				)
+			formatString: 0%;-0%;0%
+			lineageTag: 155de640-7b73-47d2-8483-00e5d8ffd3e9
+
+		measure 'OBs Worked s1' = DISTINCTCOUNT('Sheet1-DailySalesPerformance'[OBCode])
+			formatString: 0
+			lineageTag: c602a9bc-a860-4260-8d2b-4bdab49f9880
+
+		measure 'Order vs Execution % (Previous Day)' = ```
+				
+				DIVIDE(
+				    [Previous Day Delivered Value],
+				    [Previous Day Order Booked],0
+				) 
+				```
+			formatString: 0.0%;-0.0%;0.0%
+			lineageTag: 822361f1-7726-4c65-bb20-c656f1a7ae9c
+
+		measure 'Order vs Execution % (Today)' = ```
+				
+				DIVIDE(
+				    SUM('Sheet1-DailySalesPerformance'[TotalSalesDelivered]),
+				    SUM('Sheet1-DailySalesPerformance'[TodayOrderBookedPKR]),0
+				) 
+				```
+			formatString: 0.0%;-0.0%;0.0%
+			lineageTag: 9ba67683-fff7-4a10-9c9a-0ce2ab9e1d0c
+
+		measure 'Outlets Contributing 20% (BookedSales)' = SUM('Sheet1-DailySalesPerformance'[OutletsContributing20PctValue])
+			formatString: 0
+			lineageTag: a9ce872b-5943-41e7-a516-d57016ec5f28
+
+		measure 'Outlets Contributing 80% (BookedSales)' = SUM('Sheet1-DailySalesPerformance'[OutletsContributing80PctValue])
+			formatString: 0
+			lineageTag: f9d2c7c0-6893-4360-909e-49f447b9c5b7
+
+		measure Outlets(80Pct)% = DIVIDE(SUM('Sheet1-DailySalesPerformance'[OutletsContributing80PctValue]),SUM('Sheet1-DailySalesPerformance'[TotalOutlets]),0)
+			formatString: 0.0%;-0.0%;0.0%
+			lineageTag: 44791696-0caf-4f83-b994-5464854ec125
+
+		measure 'Previous Day Delivered Value' =
+				
+				CALCULATE(
+				    SUM('Sheet1-DailySalesPerformance'[TotalSalesDelivered]),
+				    PREVIOUSDAY('Date Table'[Date])
+				)
+			lineageTag: 7e20d0cb-168e-410e-9909-b521e2b5308f
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Previous Day Lost Sales' =
+				
+				CALCULATE(
+				    Sum('Sheet1-DailySalesPerformance'[LostSalesDueToOperationsPKR]),
+				    PREVIOUSDAY('Date Table'[Date])
+				)
+			lineageTag: 7fbf6046-24e7-450a-b8d0-06078c5b0beb
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Previous Day Order Booked' =
+				
+				CALCULATE(
+				    SUM('Sheet1-DailySalesPerformance'[TotalSalesBookedForTheDayApp])+SUM('Sheet1-DailySalesPerformance'[TotalSalesBookedForTheDayWeb]),
+				    PREVIOUSDAY('Date Table'[Date])
+				)
+			lineageTag: 90f6ef2e-5837-462f-8b6c-292527fdc561
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Sales Booked (App)' = SUM('Sheet1-DailySalesPerformance'[TotalSalesBookedForTheDayApp])
+			lineageTag: ea1f8aff-3dfd-41b8-94f8-7391751f1db8
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Sales Booked (Web)' = SUM('Sheet1-DailySalesPerformance'[TotalSalesBookedForTheDayWeb])
+			lineageTag: 0714a750-b0cd-47b1-b357-72d6b0854823
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Web Sales Value' = SUM('Sheet1-DailySalesPerformance'[WebSalesDelivered])
+			lineageTag: c7bbc616-8294-4f1b-bb76-3d732eba51a4
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	ref table Sheet2-RouteExecution
+
+		measure 'Avg Order Prod. Outlets' = DIVIDE(SUM('Sheet2-RouteExecution'[TotalProductiveOrderValue]),SUM('Sheet2-RouteExecution'[ProductiveOutletsOverall]),0)
+			lineageTag: d0a609ec-e2d7-442e-9f63-6d46869fff54
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure Execution_Status_Flag =
+				
+				VAR PJP = [PJP Compliance %]
+				VAR Strike = [StrikeRate% Overall]
+				RETURN
+				SWITCH(
+				    TRUE(),
+				    PJP >= 95 && Strike >= 65, "#2E7D32", -- Green (On Track)
+				    PJP >= 90 || Strike >= 60, "#F57C00", -- Amber (Watch)
+				    "#C62828"                             -- Red (Action Needed)
+				)
+			lineageTag: 2fdb35fb-dff0-419b-bed9-e4b4f8bfa2a3
+
+		measure 'Missed Possible order value' = ```
+				
+				Var Missed=SUM('Sheet2-RouteExecution'[MissedOutlets])* [Avg Order Prod. Outlets]
+				Return 
+				iF(
+				    ISBLANK(Missed),"",Missed
+				)
+				```
+			lineageTag: d1849c2a-ef55-4fb4-87e7-884ff3d31bab
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'OB Execution Status' =
+				
+				VAR _pjp = [PJP Compliance %]
+				VAR _strike = [StrikeRate% Overall]
+				RETURN
+				SWITCH(
+				    TRUE(),
+				    ISBLANK(_pjp) ,"",
+				    _pjp >= 0.95 && _strike >= 0.65, "On track",
+				    _pjp >= 0.90 || _strike >= 0.60, "Watch",
+				    "Action needed"
+				)
+			lineageTag: 47466ac0-861c-450f-a726-74464cb3019f
+
+		measure 'OBs Worked s2' = DISTINCTCOUNT('Sheet2-RouteExecution'[OBCode])
+			formatString: 0
+			lineageTag: f429eeff-e3f3-4c65-b629-5d9a4d290fe1
+
+		measure 'PJP Compliance %' = DIVIDE(SUM('Sheet2-RouteExecution'[TotalVisitsPlanned_InclNonProductive]),SUM('Sheet2-RouteExecution'[PlannedShopsInPJP]),0)
+			formatString: 0.00%;-0.00%;0.00%
+			lineageTag: a61186df-5a40-4bdf-bf9b-fc6925838d2d
+
+		measure 'PJP Status' =
+				
+				VAR _pjp = COALESCE([PJP Compliance %],"")
+				RETURN
+				SWITCH(
+				    TRUE(),
+				    ISBLANK(_pjp) || _pjp ="", " ",
+				    _pjp >= 0.95, "On track",
+				    _pjp >= 0.90, "Watch",
+				    _pjp <= 0.90,"Action needed"
+				)
+			lineageTag: 4afab017-0b00-486b-83e5-30791f9b518a
+
+		measure 'Planned Productive' = SUM('Sheet2-RouteExecution'[PlannedProductiveShopsApp])+SUM('Sheet2-RouteExecution'[PlannedProductiveShopsWeb])
+			formatString: 0
+			lineageTag: 93259c64-7000-4f7e-b431-f8710a7162e4
+
+		measure 'Productive Outlets over500 bil%' = DIVIDE(SUM('Sheet2-RouteExecution'[ProductiveOutletsOver500Bill]),SUM('Sheet2-RouteExecution'[ProductiveOutletsOverall]),0)
+			formatString: 0.0%;-0.0%;0.0%
+			lineageTag: 0ee264d7-e5b0-4102-a126-5e7de8475209
+
+		measure 'Productive Outlets under500 bil%' = DIVIDE(SUM('Sheet2-RouteExecution'[ProductiveOutletsUnder500Bill]),SUM('Sheet2-RouteExecution'[ProductiveOutletsOverall]),0)
+			formatString: 0.0%;-0.0%;0.0%
+			lineageTag: e1fb9807-c59b-4ca4-9a0e-93e170bb77be
+
+		measure 'StrikeRate% Overall' =
+				
+				VAR _PlannedOutlets =
+				    SUM('Sheet2-RouteExecution'[PlannedShopsInPJP])
+				VAR _PlannedVisits =
+				    SUM('Sheet2-RouteExecution'[TotalVisitsPlanned_InclNonProductive])
+				RETURN
+				IF(
+				    _PlannedOutlets = 0 || _PlannedVisits = 0,
+				    0,
+				    DIVIDE(
+				        SUM('Sheet2-RouteExecution'[ProductiveOutletsOverall]),
+				        SUM('Sheet2-RouteExecution'[TotalVisits_InclNonProductive]),
+				        0
+				    )
+				)
+			formatString: 0.0%;-0.0%;0.0%
+			lineageTag: 740066ca-7026-4110-9df6-e19347b7397d
+
+		measure 'StrikeRate% Under 100m' =
+				
+				VAR _PlannedOutlets =
+				    SUM('Sheet2-RouteExecution'[PlannedShopsInPJP])
+				VAR _PlannedVisits =
+				    SUM('Sheet2-RouteExecution'[TotalVisitsPlanned_InclNonProductive])
+				RETURN
+				IF(
+				    _PlannedOutlets = 0 || _PlannedVisits = 0,
+				    0,
+				    DIVIDE(
+				        SUM('Sheet2-RouteExecution'[ProductiveOutletsUnder100m]),
+				        SUM('Sheet2-RouteExecution'[TotalVisits_InclNonProductive]),
+				        0
+				    )
+				)
+			formatString: 0.0%;-0.0%;0.0%
+			lineageTag: 7fe37a43-2bf6-4794-92d9-4eba6c709bce
+
+	ref table Sheet3-MarketTime&GPS
+
+		measure '% Shops Without GPS' =
+				
+				VAR NoGPS = SUM('Sheet3-MarketTime&GPS'[ShopsVisitedWithoutGPS])
+				VAR TotalStops = SUM('Sheet3-MarketTime&GPS'[TotalStopRows])
+				RETURN
+				IF(
+				    TotalStops = 0,
+				    "-",
+				    ROUND(DIVIDE(NoGPS, TotalStops) * 100, 2) & "%"
+				)
+			lineageTag: 32b5709f-7d18-4e6d-91cc-60565fe5fab0
+
+		measure 'Active Market Time (HH:MM)' =
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[ActiveMarketTime_HHMM])
+				    )
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[ActiveMarketTime_HHMM])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    "",
+				    FORMAT(INT(MedianSeconds / 3600), "00") & ":" & FORMAT(MOD(INT(MedianSeconds / 60), 60), "00")
+				)
+			lineageTag: bb26a093-9c91-454b-afd4-cf580b735051
+
+		measure 'Active Market Time Median' =
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[ActiveMarketTime_HHMM])
+				    )
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[ActiveMarketTime_HHMM])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    "",
+				    MedianSeconds
+				)
+			lineageTag: bd2a29d4-24ee-4924-ae8d-860425e6b6f4
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Avg Stops per Day' =
+				
+				AVERAGEX(
+				    VALUES('Date Table'[Date]),
+				    CALCULATE(SUM('Sheet3-MarketTime&GPS'[TotalStopsMade]))
+				)
+			formatString: 0
+			lineageTag: 5f5e1102-cf5e-4bae-97d4-86f0e69b501b
+
+			annotation PBI_FormatHint = {"isDecimal":true}
+
+		measure 'Avg Time Between Visits (Minutes)' =
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[AvgTimeBetweenVisitsMinutes])
+				    )
+				VAR MedianValue =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[AvgTimeBetweenVisitsMinutes])
+				    )
+				RETURN
+				IF(ISBLANK(MedianValue), "", ROUND(MedianValue, 2) & " min")
+			lineageTag: adf915fc-3bd3-424f-88a4-7cb9f12b7e11
+
+		measure 'Avg Time Between Visits (Seconds)' =
+				
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[AvgTimeBetweenVisitsMinutes])
+				    )
+				
+				VAR MedianValue =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(
+				            ValidRows,
+				            'Sheet3-MarketTime&GPS'[AvgTimeBetweenVisitsMinutes]
+				        )
+				    )
+				
+				RETURN
+				IF(
+				    ISBLANK(MedianValue),
+				    BLANK(),
+				    INT(MedianValue * 60)
+				)
+			lineageTag: 633ae72b-a10e-4f00-81e8-2fa5691e2c84
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Before/After Field Time (HH:MM)' =
+				
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM])
+				            && NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInTrade_HHMM])
+				    )
+				
+				VAR MedianDifference =
+				    MEDIANX(
+				        ValidRows,
+				        'Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM]
+				            - 'Sheet3-MarketTime&GPS'[TotalTimeSpentInTrade_HHMM]
+				    )
+				
+				RETURN
+				IF(
+				    ISBLANK(MedianDifference),
+				    "",
+				    FORMAT(INT(MedianDifference / 3600), "00")
+				        & ":"
+				        & FORMAT(MOD(INT(MedianDifference / 60), 60), "00")
+				)
+			lineageTag: 4f32369a-cc29-461b-84df-18d08bb5072a
+
+		measure 'Before/After Field Time (seconds)' =
+				
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM])
+				            && NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInTrade_HHMM])
+				    )
+				
+				VAR MedianDifference =
+				    MEDIANX(
+				        ValidRows,
+				        'Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM]
+				            - 'Sheet3-MarketTime&GPS'[TotalTimeSpentInTrade_HHMM]
+				    )
+				
+				RETURN
+				IF(
+				    ISBLANK(MedianDifference),
+				    BLANK(),
+				    INT(MedianDifference)
+				)
+			formatString: 0
+			lineageTag: ccf4a5a1-eb7d-45ac-98bd-faada6621d14
+
+		measure 'Data Quality' =
+				
+				VAR _fieldTime = [Field Time (HH:MM)]
+				VAR _gps = [GPS Compliance %]
+				RETURN
+				SWITCH(
+				    TRUE(),
+				    ISBLANK(_fieldTime) || _fieldTime=""  , "absent",
+				    _gps >= 0.85, "Reliable",
+				    _gps >= 0.75, "Gaps",
+				    "Unreliable"
+				)
+			lineageTag: 0dacdf16-7458-462c-a7df-e19a276c8159
+
+		measure 'Day End (Median Time)' = ```
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[DayEnd])
+				    )
+				Return
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[DayEnd], 1))
+				    )
+				
+				```
+			lineageTag: 05b26cb8-def1-42f6-884c-c5422e1157b6
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Day End (Median Time) Display' =
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[DayEnd])
+				    )
+				VAR MedianFraction =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[DayEnd], 1))
+				    )
+				RETURN
+				IF(ISBLANK(MedianFraction), "", FORMAT(MedianFraction, "hh:mm AM/PM"))
+			lineageTag: 97c71e0c-9a7b-4344-aadb-c86b429abbe4
+
+		measure 'Day Start (Median Time)' = ```
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[DayStart])
+				    )
+				RETURN
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[DayStart], 1))
+				    )
+				
+				```
+			lineageTag: 31f20bb4-7f86-4a77-95d5-3cde4fe7e29d
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Day Start (Median Time) Display' =
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[DayStart])
+				    )
+				VAR MedianFraction =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[DayStart], 1))
+				    )
+				RETURN
+				IF(ISBLANK(MedianFraction), "", FORMAT(MedianFraction, "hh:mm AM/PM"))
+			lineageTag: fd83be65-451c-4c60-9b23-9fb9cd4d9b59
+
+		measure 'Field Time (HH:MM)' =
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM])
+				    )
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    "",
+				    FORMAT(INT(MedianSeconds / 3600), "00") & ":" & FORMAT(MOD(INT(MedianSeconds / 60), 60), "00")
+				)
+			lineageTag: 221080f9-2c2c-4ae7-a7f6-342633461563
+
+		measure 'Field Time (HH:MM) Derived' =
+				
+				VAR MedStart = [Day Start (Median Time)]   -- fraction value, not the "-" text version
+				VAR MedEnd   = [Day End (Median Time)]
+				RETURN
+				IF(
+				    OR(ISBLANK(MedStart), ISBLANK(MedEnd)),
+				    "",
+				    VAR DiffSeconds = (MedEnd - MedStart) * 86400
+				    RETURN FORMAT(INT(DiffSeconds / 3600), "00") & ":" & FORMAT(MOD(INT(DiffSeconds / 60), 60), "00")
+				)
+			lineageTag: 9574118f-e8b6-41f9-baf9-e897e5d5f4d9
+
+		measure 'Field Time Median' =
+				
+				VAR MedStart = [Day Start (Median Time)]   -- fraction value, not the "-" text version
+				VAR MedEnd   = [Day End (Median Time)]
+				RETURN
+				IF(
+				    OR(ISBLANK(MedStart), ISBLANK(MedEnd)),
+				    "",
+				     (MedEnd - MedStart) * 86400
+				)
+			lineageTag: 2c82812b-4e58-43e1-ab63-3378534342e1
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'First Shop Called At (Median Time)' = ```
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[FirstShopCalledAt])
+				    )
+				RETURN
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[FirstShopCalledAt], 1))
+				    )
+				
+				```
+			lineageTag: 0b6ee2c6-8658-4c18-9d82-22fee62f3dc7
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'First Shop Called At (Median Time) Display' =
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[FirstShopCalledAt])
+				    )
+				VAR MedianFraction =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[FirstShopCalledAt], 1))
+				    )
+				RETURN
+				IF(ISBLANK(MedianFraction), "", FORMAT(MedianFraction, "hh:mm AM/PM"))
+			lineageTag: 2f24fe8f-de57-46f2-b0dc-c7697b712ae3
+
+		measure 'GPS Compliance %' = DIVIDE(SUM('Sheet3-MarketTime&GPS'[ValidGPSCount]),SUM('Sheet3-MarketTime&GPS'[ShopsVisitedWithGPS]),0)
+			formatString: 0.00%;-0.00%;0.00%
+			lineageTag: 3e435ddd-5ef0-4d82-8ead-af9ed2aa18a8
+
+		measure 'Last Shop Called At (Median Time)' = ```
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[LastShopCalledAt])
+				    )
+				RETURN
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[LastShopCalledAt], 1))
+				    )
+				
+				```
+			lineageTag: a7bc7470-ec32-48d6-aac0-dba91689fdf9
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Last Shop Called At (Median Time) Display' =
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[LastShopCalledAt])
+				    )
+				VAR MedianFraction =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[LastShopCalledAt], 1))
+				    )
+				RETURN
+				IF(ISBLANK(MedianFraction), "", FORMAT(MedianFraction, "hh:mm AM/PM"))
+			lineageTag: 70dad8fa-68f7-4063-a078-e95b657adc7d
+
+		measure 'Last Shop Completed At (Median Time)' = ```
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[LastShopCompletedAt])
+				    )
+				RETURN
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[LastShopCompletedAt], 1))
+				    )
+				
+				```
+			lineageTag: 4c273294-80ff-4490-8853-8e5b121cb78d
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Last Shop Completed At (Median Time) Display' =
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[LastShopCompletedAt])
+				    )
+				VAR MedianFraction =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, MOD('Sheet3-MarketTime&GPS'[LastShopCompletedAt], 1))
+				    )
+				RETURN
+				IF(ISBLANK(MedianFraction), "", FORMAT(MedianFraction, "hh:mm AM/PM"))
+			lineageTag: 755e232b-3195-4aa6-aa1a-674f074edba8
+
+		measure 'Longest Idle Period (HH:MM:SS)' = ```
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[LongestIdlePeriod_HHMMSS])
+				    )
+				VAR MaxSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MAXX(ValidRows, 'Sheet3-MarketTime&GPS'[LongestIdlePeriod_HHMMSS])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MaxSeconds),
+				    "",
+				    FORMAT(INT(MaxSeconds / 3600), "00") & ":" & 
+				    FORMAT(MOD(INT(MaxSeconds / 60), 60), "00") & ":" & 
+				    FORMAT(MOD(INT(MaxSeconds), 60), "00")
+				)
+				```
+			lineageTag: 5121e870-57dc-487a-bd97-168bc8a3fca3
+
+		measure 'Longest Idle Period max' =
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[LongestIdlePeriod_HHMMSS])
+				    )
+				VAR MaxSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MAXX(ValidRows, 'Sheet3-MarketTime&GPS'[LongestIdlePeriod_HHMMSS])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MaxSeconds),
+				    "",
+				   MaxSeconds
+				)
+			lineageTag: cc8d46d0-06e1-4636-9ece-fa07f5df3b39
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Median Shop Time (HH:MM:SS)' = ```
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[MedianTimePerShop_HHMMSS])
+				    )
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[MedianTimePerShop_HHMMSS])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    "",
+				    FORMAT(INT(MedianSeconds / 3600), "00") & ":" & 
+				    FORMAT(MOD(INT(MedianSeconds / 60), 60), "00") & ":" & 
+				    FORMAT(MOD(INT(MedianSeconds), 60), "00")
+				)
+				```
+			lineageTag: 36aff1da-79cc-4aa8-818e-e8c8c2eef0f3
+
+		measure 'No GPS %' = DIVIDE(SUM('Sheet3-MarketTime&GPS'[ShopsVisitedWithoutGPS]),SUM('Sheet3-MarketTime&GPS'[TotalStopRows]),0)
+			formatString: 0.00%;-0.00%;0.00%
+			lineageTag: 98feaa2b-7876-4cfa-b158-75ba6f8f96d9
+
+		measure 'OBs Worked s3' = DISTINCTCOUNT('Sheet3-MarketTime&GPS'[OBCode])
+			formatString: 0
+			lineageTag: 3b197d31-01a6-4901-a729-21c41b55add1
+
+		measure 'Shop Time (HH:MM)' =
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInShops_HHMM])
+				    )
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[TotalTimeSpentInShops_HHMM])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    "",
+				    FORMAT(INT(MedianSeconds / 3600), "00") & ":" & FORMAT(MOD(INT(MedianSeconds / 60), 60), "00")
+				)
+			lineageTag: 22818d5e-e333-442a-82ec-5001b8151275
+
+		measure 'Shop Time (Seconds) Derived' =
+				
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInShops_HHMM])
+				    )
+				
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(
+				            ValidRows,
+				            'Sheet3-MarketTime&GPS'[TotalTimeSpentInShops_HHMM]
+				        )
+				    )
+				
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    BLANK(),
+				    INT(MedianSeconds)
+				)
+			lineageTag: 86d98b56-6bdc-4c8f-8408-fa264f3b2e5b
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Shop Time %' =
+				
+				VAR TotalShopTime = SUM('Sheet3-MarketTime&GPS'[TotalTimeSpentInShops_HHMM])
+				VAR TotalFieldTime = SUM('Sheet3-MarketTime&GPS'[TotalTimeSpentInField_HHMM])
+				RETURN
+				IF(
+				    TotalFieldTime = 0,
+				    "",
+				    ROUND(DIVIDE(TotalShopTime, TotalFieldTime,0), 3)
+				)
+			formatString: 0.00%;-0.00%;0.00%
+			lineageTag: 0d3a9be0-c442-4d02-bc1e-e9203f04b524
+
+		measure 'Shops With GPS' =
+				
+				VAR TotalCount = SUM('Sheet3-MarketTime&GPS'[ShopsVisitedWithGPS])
+				RETURN
+				IF(TotalCount = 0, "", TotalCount)
+			formatString: 0
+			lineageTag: b0fd691f-1367-4e70-bf46-2ab29420bfe6
+
+		measure 'Shops Without GPS' = ```
+				
+				 SUM('Sheet3-MarketTime&GPS'[ShopsVisitedWithoutGPS])
+				
+				```
+			lineageTag: 39f9348a-1e24-45b5-80b8-1d4f71b59a7d
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Total Idle Period (HH:MM)' =
+				
+				VAR TotalSeconds = MEDIAN('Sheet3-MarketTime&GPS'[TotalIdlePeriod_HHMM])
+				RETURN
+				IF(
+				    ISBLANK(TotalSeconds) || TotalSeconds = 0,
+				    "",
+				    FORMAT(INT(TotalSeconds / 3600), "00") & ":" & FORMAT(MOD(INT(TotalSeconds / 60), 60), "00")
+				)
+			lineageTag: 3af7d722-071f-47e6-a8dd-a0a7a0b26034
+
+		measure 'Total Idle Period (Seconds) Derived' =
+				
+				
+				VAR MedianIdleSeconds =
+				    MEDIAN('Sheet3-MarketTime&GPS'[TotalIdlePeriod_HHMM])
+				
+				RETURN
+				IF(
+				    ISBLANK(MedianIdleSeconds) || MedianIdleSeconds = 0,
+				    BLANK(),
+				    INT(MedianIdleSeconds)
+				)
+			lineageTag: 9d09df89-47c5-487b-bc1d-842fb4239798
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Total Idle Period (Seconds) Median' =
+				
+				
+				VAR MedianIdleSeconds =
+				    MEDIAN('Sheet3-MarketTime&GPS'[TotalIdlePeriod_HHMM])
+				
+				RETURN
+				    INT(MedianIdleSeconds)
+			lineageTag: e0b4fcd8-1386-4c53-bf24-5714845512c2
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Trade Time (HH:MM)' =
+				
+				VAR ValidRows =
+				    FILTER(
+				        'Sheet3-MarketTime&GPS',
+				        NOT ISBLANK('Sheet3-MarketTime&GPS'[TotalTimeSpentInTrade_HHMM])
+				    )
+				VAR MedianSeconds =
+				    IF(
+				        COUNTROWS(ValidRows) = 0,
+				        BLANK(),
+				        MEDIANX(ValidRows, 'Sheet3-MarketTime&GPS'[TotalTimeSpentInTrade_HHMM])
+				    )
+				RETURN
+				IF(
+				    ISBLANK(MedianSeconds),
+				    "",
+				    FORMAT(INT(MedianSeconds / 3600), "00") & ":" & FORMAT(MOD(INT(MedianSeconds / 60), 60), "00")
+				)
+			lineageTag: 970e890b-8b1f-4664-90f2-836409ef793a
+
+		measure 'Trade Time (HH:MM) Derived' =
+				
+				VAR MedStart = [First Shop Called At (Median Time)]   -- fraction value, not the "-" text version
+				VAR MedEnd   = [Last Shop Completed At (Median Time)]
+				RETURN
+				IF(
+				    OR(ISBLANK(MedStart), ISBLANK(MedEnd)),
+				    "",
+				    VAR DiffSeconds = (MedEnd - MedStart) * 86400
+				    RETURN FORMAT(INT(DiffSeconds / 3600), "00") & ":" & FORMAT(MOD(INT(DiffSeconds / 60), 60), "00")
+				)
+			lineageTag: f474566d-3d19-4900-856e-adf59043fd6f
+
+		measure 'Trade Time Median' =
+				
+				VAR MedStart = [First Shop Called At (Median Time)]   -- fraction value, not the "-" text version
+				VAR MedEnd   = [Last Shop Completed At (Median Time)]
+				RETURN
+				IF(
+				    OR(ISBLANK(MedStart), ISBLANK(MedEnd)),
+				    "",
+				     (MedEnd - MedStart) * 86400
+				)
+			lineageTag: 24adf992-6720-43f7-8c17-8ef0309a9aef
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	ref table 'Sheet4-Product Mix & Brand Performance'
+
+		measure 'Assortment Status' = ```
+				
+				  VAR _cross =COALESCE( [Cross Brand Selling %],"")
+				  RETURN
+				  SWITCH(
+				      TRUE(),
+				      ISBLANK(_cross)|| _cross=""," ",
+				      _cross >= 0.65, "Broad",
+				      _cross >= 0.55, "Narrowing",
+				      "Single brand"
+				  )
+				```
+			lineageTag: c72d3bee-3075-494b-a5af-0320d67f91e7
+
+		measure 'Avg Brands Per Bill' = ```
+				
+				Var AvgValue=DIVIDE ( SUM ( 'Sheet4-Product Mix & Brand Performance'[TotalBrandsInBill] ), SUM ( 'Sheet4-Product Mix & Brand Performance'[BillCount] ) )
+				Return 
+				IF(ISBLANK(AvgValue),"",AvgValue)
+				
+				```
+			lineageTag: fd0dd3b4-2267-4861-9e7a-5b1f48ee04b8
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Avg Segments Per Bill' = ```
+				
+				Var AvgValue=DIVIDE ( SUM ( 'Sheet4-Product Mix & Brand Performance'[TotalSegmentsInBill] ), SUM ( 'Sheet4-Product Mix & Brand Performance'[BillCount]) )
+				Return 
+				IF(ISBLANK(AvgValue),"",AvgValue)
+				
+				```
+			lineageTag: 98dd1ddc-020f-442f-95fa-53cfbc61326e
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Avg Variance Per Bill' = ```
+				
+				Var AvgValue=DIVIDE ( SUM ( 'Sheet4-Product Mix & Brand Performance'[TotalVariantsInBill] ), SUM ( 'Sheet4-Product Mix & Brand Performance'[BillCount]) )
+				Return 
+				IF(ISBLANK(AvgValue),"",AvgValue)
+				
+				```
+			lineageTag: f3eb3c2a-70a0-4ecb-859a-3c167074d475
+
+			annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		measure 'Cross Brand Selling %' = ```
+				
+				Var AvgValue= DIVIDE ( SUM ( 'Sheet4-Product Mix & Brand Performance'[CrossBrandBillCount] ), SUM ( 'Sheet4-Product Mix & Brand Performance'[BillCount] ) )
+				Return 
+				IF(ISBLANK(AvgValue),"",AvgValue)
+				```
+			formatString: 0.00%;-0.00%;0.00%
+			lineageTag: d7049117-8187-41c1-b3fe-404ba654d9b8
+
+		measure 'OBs Worked s4' = DISTINCTCOUNT('Sheet4-Product Mix & Brand Performance'[OBCode])
+			formatString: 0
+			lineageTag: 32205748-1d5a-4d41-9d22-e2ef6a0dcace
+
+	ref table Sheet4b-BrandPerformance
+
+		measure '1 Piece Lines' = CALCULATE(SUM('Sheet4b-BrandPerformance'[Lines]),'Sheet4b-BrandPerformance'[PieceBand]="1 Piece")
+			formatString: 0
+			lineageTag: c35d5da7-7f72-4426-9c38-82db72e50790
+
+		measure '2 Piece Lines' = CALCULATE(SUM('Sheet4b-BrandPerformance'[Lines]),'Sheet4b-BrandPerformance'[PieceBand]="2 Pieces")
+			formatString: 0
+			lineageTag: e04fa00c-ef12-4f9f-9f75-53fbe362f52e
+
+		measure '3+ Piece Lines' = CALCULATE(SUM('Sheet4b-BrandPerformance'[Lines]),'Sheet4b-BrandPerformance'[PieceBand]="3+ Pieces")
+			formatString: 0
+			lineageTag: f7278b92-6dd9-4feb-a73d-eddde5ae9880
+
+		measure '3+ Piece Rate' =
+				
+				DIVIDE(
+				    CALCULATE(SUM('Sheet4b-BrandPerformance'[Lines]), 'Sheet4b-BrandPerformance'[PieceBand]="3+ Pieces"),
+				    SUM('Sheet4b-BrandPerformance'[Lines])
+				)
+			formatString: 0%;-0%;0%
+			lineageTag: ef3b7e86-cea7-479f-a715-7244fcc2d340

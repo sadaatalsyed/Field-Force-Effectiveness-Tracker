@@ -1,0 +1,22 @@
+# ORIGINAL DAX EXPRESSIONS — Extracted from user-supplied TMDL
+# Table: Sheet4b-BrandPerformance
+# Exact source expressions kept, not refactored. Some may have known logic concerns.
+
+// 1 Piece Lines
+1 Piece Lines =
+CALCULATE(SUM('Sheet4b-BrandPerformance'[Lines]),'Sheet4b-BrandPerformance'[PieceBand]="1 Piece")
+
+// 2 Piece Lines
+2 Piece Lines =
+CALCULATE(SUM('Sheet4b-BrandPerformance'[Lines]),'Sheet4b-BrandPerformance'[PieceBand]="2 Pieces")
+
+// 3+ Piece Lines
+3+ Piece Lines =
+CALCULATE(SUM('Sheet4b-BrandPerformance'[Lines]),'Sheet4b-BrandPerformance'[PieceBand]="3+ Pieces")
+
+// 3+ Piece Rate
+3+ Piece Rate =
+DIVIDE(
+				    CALCULATE(SUM('Sheet4b-BrandPerformance'[Lines]), 'Sheet4b-BrandPerformance'[PieceBand]="3+ Pieces"),
+				    SUM('Sheet4b-BrandPerformance'[Lines])
+				)

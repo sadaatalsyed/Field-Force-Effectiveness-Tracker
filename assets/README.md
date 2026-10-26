@@ -1,9 +1,5 @@
-# Visual publishing and provenance
+# Real dashboard screenshots (public-safe portfolio subset)
 
-**Public gallery:** Five new SVG previews in [report-previews](report-previews/) are **schematic illustrations only**. They communicate layout and analytical themes without exposing actual client data.
+The 10 JPGs in `screenshots/` are genuine rendered pages of the uploaded Power BI PDF, **not mockups**. All detail rows had redaction from a prior source-image pass, and header client marks and some staff drilldown sections have been additionally masked for public use. Static charts still represent historic report data and need owner authorization before public portfolio distribution.
 
-**True screenshots:** The supplied PDF contains 10 real report pages. A separate local package contains rendered original page captures with sensitive tabular rows redacted, but these screenshots are **not uploaded** to GitHub. Do not claim the SVG previews are screenshots.
-
-**Confidentiality:** The original PBIX, full PDF, detailed employee activity and customer GPS information should not be made public. Always verify charts and any labels as well as table rows before publishing screenshots.
-
-Reference the full [visual walkthrough](../docs/VISUAL_WALKTHROUGH.md) and [gallery](../docs/REPORT_GALLERY.md).
+The former five SVG mockup previews were **removed** from the active project tree. Navigation starts from the real Executive Overview capture. [Gallery](../docs/REPORT_GALLERY.md).

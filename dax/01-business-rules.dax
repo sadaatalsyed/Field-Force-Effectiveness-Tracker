@@ -1,0 +1,23 @@
+# ORIGINAL DAX EXPRESSIONS — Extracted from user-supplied TMDL
+# Table: Business Rules
+# Exact source expressions kept, not refactored. Some may have known logic concerns.
+
+// Daily Sales KPIs
+Daily Sales KPIs =
+CALCULATE(COUNT('Business Rules'[Report Name]),'Business Rules'[Report Name]="Daily Sales Performance")
+
+// Product Mix KPIs
+Product Mix KPIs =
+CALCULATE(COUNT('Business Rules'[Report Name]),'Business Rules'[Report Name]="Product Mix & Brand Performance")
+
+// Route Execution KPIs
+Route Execution KPIs =
+CALCULATE(COUNT('Business Rules'[Report Name]),'Business Rules'[Report Name]="Route Execution & Productivity")
+
+// Time Intelligence KPIs
+Time Intelligence KPIs =
+CALCULATE(COUNT('Business Rules'[Report Name]),'Business Rules'[Report Name]="Market Time & GPS")
+
+// Total KPIs Defined
+Total KPIs Defined =
+COUNT('Business Rules'[Report Name])

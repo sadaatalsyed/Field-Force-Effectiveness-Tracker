@@ -1,83 +1,65 @@
 <p align="center"><img src="assets/ice-hero.svg" alt="ICE Field Force Effectiveness Tracker" width="100%"></p>
 
-# ICE Tracker · Field Force Effectiveness Intelligence
+# ICE Tracker — Field Force Effectiveness Intelligence
 
-**A decision-ready FMCG field-execution analytics case study built with SQL Server, Power BI and DAX.**  
-*From delivery totals to the everyday reasons behind execution gaps.*
+> **A portfolio case study of an FMCG order-booker field-execution analytics solution:** SQL Server + Power BI + **90 original TMDL DAX measures**, with screenshots captured from the actual dashboard.
 
-![Power BI](https://img.shields.io/badge/BI-Power%20BI-F2C811?logo=powerbi&logoColor=111) ![SQL](https://img.shields.io/badge/ETL-SQL%20Server-215A9A) ![DAX](https://img.shields.io/badge/Semantic%20Layer-DAX-8247BA) ![Grain](https://img.shields.io/badge/Analysis-Order%20Booker%20%C3%97%20Day-17375E) ![Status](https://img.shields.io/badge/Portfolio-Documented-178365)
+![Power BI](https://img.shields.io/badge/Power%20BI-Report-F2C811) ![SQL Server](https://img.shields.io/badge/SQL%20Server-Analytics-2E6EAE) ![DAX](https://img.shields.io/badge/90-Original%20DAX%20Measures-0F766E) ![Case Study](https://img.shields.io/badge/10-Actual%20Report%20Pages-17375E)
 
-> **Executive takeaway:** Sales outcomes alone don't tell a distribution manager *why* a field day failed. The tracker connects route coverage, outlet conversion, time utilization, location credibility and basket depth to the same daily order-booker view.
+## The business problem
 
-## What this solution answers
+In FMCG direct-store distribution, **sales targets don't explain field behavior**. Managers need to understand whether orderbookers followed their PJP route, made enough productive outlet visits, spent enough time in trade, collected accurate GPS evidence, converted visits into orders and grew the breadth of brands per bill.
 
-| Leadership question | Diagnostic lens | Action enabled |
+The solution connects *Daily Sales*, *Route Execution*, *Market Time & GPS*, and *Product Mix & Brand Performance* in one hierarchy-aware reporting experience.
+
+### Executive Overview — original dashboard
+
+![Original executive overview from Power BI PDF](assets/screenshots/02-executive-overview.jpg)
+
+Explore the **[complete business case study with all 10 real screenshots](docs/CASE_STUDY.md)**.
+
+## Four performance lenses
+
+| Domain | Questions answered | Actual screenshot |
 |---|---|---|
-| Did the team book and deliver effectively? | App/web, booked/delivered, execution %, 80/20 outlet mix | Investigate booking vs fulfillment gaps |
-| Did field staff work the right route? | PJP shops, planned/unplanned visits, missed shops, strike rate | Prioritize missed planned outlets |
-| Was time in the market productive? | Sync-down/up, trade/field/shop time, idle time, calls per hour | Coach time allocation and daily discipline |
-| Can outlet activity be trusted? | Captured GPS, outlet reference GPS, 100-metre validity | Audit data quality before enforcing compliance |
-| Are orders sufficiently diverse? | Brand, segment and SKU depth; 1/2/3+ piece bands | Spot low-depth selling and cross-sell opportunities |
+| **Daily Sales Performance** | What was booked vs delivered? App/Web contribution? Concentration of sales value? | [View actual page](assets/screenshots/03-daily-sales-charts.jpg) |
+| **Route Execution & Productivity** | Did field staff follow the PJP? How many planned, productive, unplanned and nonproductive outlets? | [View actual page](assets/screenshots/04-route-execution-charts.jpg) |
+| **Market Time & GPS** | How much market time was used? Are visits within 100m of outlet GPS? What are idle gaps? | [View actual page](assets/screenshots/05-market-time-gps-charts.jpg) |
+| **Product Mix & Brand Performance** | How many distinct brands, segments and products per bill? Are orders 1/2/3+ pieces? | [View actual page](assets/screenshots/06-product-mix-charts.jpg) |
 
-## Explore the case study
+### Visual evidence
 
-| Section | What you'll find |
+| Sales | Route |
 |---|---|
-| **[Business case and analytical decisions](docs/CASE_STUDY.md)** | Stakeholders, pain points, why existing sales-only reporting was insufficient, solution logic and decision outcomes |
-| **[Report page & visual guide](docs/VISUAL_WALKTHROUGH.md)** | All **10 observed pages**: rules + overview + 4 analytical chart pages + 4 detail matrices; field-to-visual examples verified against PBIX metadata |
-| **[KPI business rules](docs/KPI_DICTIONARY.md)** | Definitions, grain, calculation bases, percentage and median subtotal rules, GPS and Pareto methodology |
-| **[DAX semantics & audit status](docs/DAX_EXPLAINED.md)** | Verified existing DAX versus illustrative patterns; measures shown in visual bindings, with explicit provenance |
-| **[Architecture & lineage](docs/ARCHITECTURE.md)** | Source systems → SQL analytical queries → Power BI model → managerial decisions |
-| **[Data quality and known issues](docs/DATA_QUALITY.md)** | Inclusive date pitfalls, 100m denominator/visit-grain ambiguity, Pareto, threshold and weighted-score gaps |
-| **[Exact SQL source extracts](sql/)** | Six supplied SQL query drafts, kept source-faithful for review |
-| **[DAX patterns](dax/README.md)** | Clearly labeled reference patterns plus instructions to obtain the exact compressed model expressions |
-| **[Report gallery](docs/REPORT_GALLERY.md)** | Five responsive illustrative report-layout images plus original 10-page inventory |
+| ![Actual Daily Sales Page](assets/screenshots/03-daily-sales-charts.jpg) | ![Actual Route Page](assets/screenshots/04-route-execution-charts.jpg) |
+| Market Time & GPS | Product Mix |
+| ![Actual Market Time Page](assets/screenshots/05-market-time-gps-charts.jpg) | ![Actual Product Mix Page](assets/screenshots/06-product-mix-charts.jpg) |
 
-![Journey from events to decisions](assets/execution-flow.svg)
+*These are cropped/resized **genuine report exports**. Confidential source rows and selected identifiers have been redacted; the graphics are not synthetic replacements.*
 
-### Report layout gallery (schematic, no client data)
+## Repository navigation
 
-[![Executive Overview](assets/report-previews/01-overview.svg)](docs/REPORT_GALLERY.md)
-
-| Daily sales | Route execution |
+| Folder or document | Purpose |
 |---|---|
-| [![Daily Sales](assets/report-previews/02-daily-sales.svg)](docs/REPORT_GALLERY.md) | [![Route Execution](assets/report-previews/03-route-execution.svg)](docs/REPORT_GALLERY.md) |
-| Market Time & GPS | Product mix |
-| [![Market Time & GPS](assets/report-previews/04-market-time-gps.svg)](docs/REPORT_GALLERY.md) | [![Product Mix](assets/report-previews/05-product-mix.svg)](docs/REPORT_GALLERY.md) |
+| [Case study](docs/CASE_STUDY.md) | Business context, four analytical domains, visuals, engineering decisions, limitations |
+| [Actual 10-page gallery](docs/REPORT_GALLERY.md) | All original Power BI PDF screenshots, including KPI rules and detailed matrix pages |
+| [90 original DAX measures](dax/original-tmdl-export.txt) | Verbatim source TMDL extracted from supplied file |
+| [DAX explained](docs/DAX_EXPLAINED.md) | Actual formulas, use in visuals, aggregation rules and QA findings |
+| [90-measure visual mapping](docs/MEASURE_VISUAL_MAPPING.md) | Measures mapped to report pages/visual types from PBIX JSON |
+| [KPI dictionary](docs/KPI_DICTIONARY.md) | Business KPI definitions and assumptions from source export |
+| [Six SQL queries](sql/) | Daily Sales, Route, Market/GPS, Product Mix, Brand bands and hierarchy |
+| [Architecture](docs/ARCHITECTURE.md) | Source → SQL grain → semantic model → dashboards |
+| [Data quality](docs/DATA_QUALITY.md) | Date boundaries, GPS denominator, threshold review and limitations |
 
-*These visuals communicate report structure. They are illustrative SVGs, not screenshots of client performance data.*
+## What was analyzed
 
-## Scope observed in supplied report
+- **10 actual report pages**, from the provided Power BI PDF export.
+- **90 original semantic-model DAX measures** in the provided TMDL text, grouped by 8 source tables.
+- Business-rules overview **displays 68 KPI definitions** (16 Sales, 15 Route, 18 Market/GPS, 19 Product Mix). This does not mean 68 separate DAX measures.
+- Six actual provided SQL query extracts and a visual-reference export from PBIX report metadata.
 
-**10 Power BI pages**: KPI Business Rules, Overview, Daily Sales charts, Route Execution charts, Market Time & GPS charts, Product Mix charts, and four detailed tabular views.
+## Decisions and nuances worth discussing in an interview
 
-The business-rules header **displays 68 KPIs** split into Daily Sales **16**, Route **15**, Market Time & GPS **18**, Product Mix **19**. **This is the displayed definition count, not 68 independently validated DAX formulas.** The exported rules screenshot visibly clips some lower entries; see [evidence limits](docs/SOURCE_AND_LIMITATIONS.md).
+**Invoice grain:** aggregate lines by InvoiceCode before computing per-bill depth and sales totals. **Visit grain:** distinct shops and visit events are different. **Percentages:** aggregate numerator/denominator before division, rather than averaging percentages. **Time medians:** duration seconds differ from clock-time medians. **GPS:** accuracy within 100m must be separated from GPS coverage. **Status metrics:** original threshold DAX contains a potential 95 vs 0.95 mismatch; see quality audit.
 
-The data is primarily modeled at **Order Booker × reporting day**, with event- and invoice-level staging logic in SQL. Regional and managerial drilldowns use a separate organizational hierarchy. One **score of the day / 35–30–20–15 weighted index is *not* represented as implemented**: source SQL explicitly flags its calculation as pending formal weight criteria.
-
-## Source SQL workstreams
-
-| Query | Analytical purpose |
-|---|---|
-| [Daily Sales](sql/01-daily-sales-performance.sql) | Invoice net amount, booking versus delivery, App vs Web, planned vs unplanned, outlet Pareto |
-| [Route Execution](sql/02-route-execution-productivity.sql) | PJP baseline, productive/nonproductive visits, planned execution, missed value, visit GPS check |
-| [Market Time & GPS](sql/03-market-time-gps.sql) | Sequenced visits, duration windows, idle gaps after 5-minute allowance, consecutive-stop distance, GPS |
-| [Product Mix](sql/04-product-mix.sql) | Distinct brands/segments/products per invoice, cross-brand invoices, per-invoice brand piece buckets |
-| [Piece-band chart source](sql/05-brand-piece-bands.sql) | Brand × piece-band tall/normalized chart dataset |
-| [Organizational Hierarchy](sql/06-organizational-hierarchy.sql) | Zone → region → area → territory → town / locality and GSM–RSM–ASM–TM–OB ownership |
-
-## A note on evidence, privacy and portability
-
-This is a **portfolio-level architectural and analytical documentation repo**, not a published live production database. The provided PBIX and PDF contain organization-specific details, real names and operational results. For that reason, the full model, raw original PDF and actual operational rows are **not committed to the public repo**. The [screenshot publication policy](assets/README.md) explains public-safe visual assets. The SQL is supplied as a **reviewable source draft**, not certified to run in another environment. There are no invented return-on-investment or productivity uplift claims.
-
-Original DAX expressions inside the uploaded PBIX DataModel were **not extractable in this environment because the model is XPress9 compressed**. This repo accurately distinguishes **PBIX visual bindings** from **illustrative reference formulas**. For exact model expressions, export the PBIX to **PBIP/TMDL** in Power BI Desktop and reconcile measure names; see the [provenance guide](docs/SOURCE_AND_LIMITATIONS.md).
-
----
-
-### Hiring-manager 30-second read
-
-**Problem →** Managers knew how much was sold, but could not consistently explain missed visits, low strike rates, idle intervals, inaccurate GPS or narrow product baskets.  
-**Design →** SQL event consolidation and invoice-aware aggregation, reporting-day grain, hierarchy-aware Power BI pages, carefully chosen DAX subtotal semantics.  
-**Outcome enabled →** Earlier identification and drilldown of the behavior behind field results. *Measured uplift is not claimed because no before/after outcome data was supplied.*
-
-**Start with the [full case study](docs/CASE_STUDY.md).**
+The repository is a **documented real-report portfolio case study**. It is not a live operational environment. No unvalidated ROI or performance claims are made. Exact source measures are reproduced unchanged; suggested corrections are documented separately.
