@@ -1,0 +1,54 @@
+/*
+REFERENCE DAX PATTERNS — NOT EXTRACTED FROM THE UPLOADED PBIX.
+Table aliases (RouteDaily, MarketDaily, ProductMixDaily) are schematic.
+Check actual table/column names and role-playing dates in the final TMDL.
+Keep numeric measures numeric; apply percentage format in model.
+*/
+
+PJP Compliance % (illustrative) =
+DIVIDE(
+    SUM(RouteDaily[TotalVisitsPlanned_InclNonProductive]),
+    SUM(RouteDaily[PlannedShopsInPJP])
+)
+
+Strike Rate % (illustrative) =
+DIVIDE(
+    SUM(RouteDaily[ProductiveOutletsOverall]),
+    SUM(RouteDaily[TotalVisits_InclNonProductive])
+)
+
+Productive Outlets Over 500 % (illustrative) =
+DIVIDE(
+    SUM(RouteDaily[ProductiveOutletsOver500Bill]),
+    SUM(RouteDaily[ProductiveOutletsOverall])
+)
+
+GPS Compliance % (numeric illustration) =
+DIVIDE(
+    SUM(MarketDaily[ValidGPSCount]),
+    SUM(MarketDaily[ShopsWithGPS])
+)
+
+Shop Time % (illustrative) =
+DIVIDE(
+    SUM(MarketDaily[ShopTimeSeconds]),
+    SUM(MarketDaily[FieldTimeSeconds])
+)
+
+Median Field Seconds (illustrative) =
+MEDIANX(
+    FILTER(MarketDaily, NOT ISBLANK(MarketDaily[FieldTimeSeconds])),
+    MarketDaily[FieldTimeSeconds]
+)
+
+Avg Brands Per Bill (illustrative) =
+DIVIDE(
+    SUM(ProductMixDaily[TotalBrandsInBill]),
+    SUM(ProductMixDaily[BillCount])
+)
+
+Cross Brand Selling % (illustrative) =
+DIVIDE(
+    SUM(ProductMixDaily[CrossBrandBillCount]),
+    SUM(ProductMixDaily[BillCount])
+)
