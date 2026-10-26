@@ -30,9 +30,22 @@
 | **[Architecture & lineage](docs/ARCHITECTURE.md)** | Source systems → SQL analytical queries → Power BI model → managerial decisions |
 | **[Data quality and known issues](docs/DATA_QUALITY.md)** | Inclusive date pitfalls, 100m denominator/visit-grain ambiguity, Pareto, threshold and weighted-score gaps |
 | **[Exact SQL source extracts](sql/)** | Six supplied SQL query drafts, kept source-faithful for review |
-| **[Legacy Market Time workstream](market-time-tracker/)** | Pre-existing DAX measures and focused documentation; retained rather than discarded |
+| **[DAX patterns](dax/README.md)** | Clearly labeled reference patterns plus instructions to obtain the exact compressed model expressions |
+| **[Report gallery](docs/REPORT_GALLERY.md)** | Five responsive illustrative report-layout images plus original 10-page inventory |
 
 ![Journey from events to decisions](assets/execution-flow.svg)
+
+### Report layout gallery (schematic, no client data)
+
+[![Executive Overview](assets/report-previews/01-overview.svg)](docs/REPORT_GALLERY.md)
+
+| Daily sales | Route execution |
+|---|---|
+| [![Daily Sales](assets/report-previews/02-daily-sales.svg)](docs/REPORT_GALLERY.md) | [![Route Execution](assets/report-previews/03-route-execution.svg)](docs/REPORT_GALLERY.md) |
+| Market Time & GPS | Product mix |
+| [![Market Time & GPS](assets/report-previews/04-market-time-gps.svg)](docs/REPORT_GALLERY.md) | [![Product Mix](assets/report-previews/05-product-mix.svg)](docs/REPORT_GALLERY.md) |
+
+*These visuals communicate report structure. They are illustrative SVGs, not screenshots of client performance data.*
 
 ## Scope observed in supplied report
 
@@ -55,9 +68,9 @@ The data is primarily modeled at **Order Booker × reporting day**, with event- 
 
 ## A note on evidence, privacy and portability
 
-This is a **portfolio-level architectural and analytical documentation repo**, not a published live production database. The provided PBIX and PDF contain organization-specific details, real names and operational results. For that reason, the full model, raw original PDF and actual operational rows are **not committed to the public repo**. The [screenshot preparation note](assets/README.md) explains public-safe visual assets. The SQL is supplied as a **reviewable source draft**, not certified to run in another environment. There are no invented return-on-investment or productivity uplift claims.
+This is a **portfolio-level architectural and analytical documentation repo**, not a published live production database. The provided PBIX and PDF contain organization-specific details, real names and operational results. For that reason, the full model, raw original PDF and actual operational rows are **not committed to the public repo**. The [screenshot publication policy](assets/README.md) explains public-safe visual assets. The SQL is supplied as a **reviewable source draft**, not certified to run in another environment. There are no invented return-on-investment or productivity uplift claims.
 
-Original DAX expressions inside the uploaded PBIX DataModel were **not extractable in this environment because the model is XPress9 compressed**. This repo accurately labels **existing verified versioned DAX**, **PBIX visual bindings**, and **reconstruction examples** separately. For exact model expressions, export the PBIX to **PBIP/TMDL** in Power BI Desktop and reconcile measure names; see the [provenance guide](docs/SOURCE_AND_LIMITATIONS.md).
+Original DAX expressions inside the uploaded PBIX DataModel were **not extractable in this environment because the model is XPress9 compressed**. This repo accurately distinguishes **PBIX visual bindings** from **illustrative reference formulas**. For exact model expressions, export the PBIX to **PBIP/TMDL** in Power BI Desktop and reconcile measure names; see the [provenance guide](docs/SOURCE_AND_LIMITATIONS.md).
 
 ---
 

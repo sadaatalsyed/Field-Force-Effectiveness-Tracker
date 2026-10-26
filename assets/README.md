@@ -1,9 +1,9 @@
-# Portfolio visuals / publishing status
+# Visual publishing and provenance
 
-- The **hero** and **execution-flow** SVGs in this folder are explanatory vector diagrams created for this repo. They are **not screenshots** of the customer's report.
-- The uploaded report has **10 actual PDF page captures** covering the Rules page, executive overview, four analytical chart pages and four detailed matrices.
-- Actual captures were rendered and given a **REDACTED | SOURCE** watermark. Operational data rows / visible staff identifiers were anonymized before preparing the separate downloadable asset bundle.
-- The source screenshot binaries are **not hosted here**. The connected GitHub text-editing workflow cannot transfer generated local binary files. Please don't add screenshot links here until the image files have been uploaded, or the README gallery would be broken.
-- Suggested target paths after the image transfer: `assets/screenshots/01-kpi-business-rules.webp` through `10-product-mix-matrix.webp`.
+**Public gallery:** Five new SVG previews in [report-previews](report-previews/) are **schematic illustrations only**. They communicate layout and analytical themes without exposing actual client data.
 
-**Verify de-identification on each screenshot before any public release.** The full PBIX and original PDF should remain private.
+**True screenshots:** The supplied PDF contains 10 real report pages. A separate local package contains rendered original page captures with sensitive tabular rows redacted, but these screenshots are **not uploaded** to GitHub. Do not claim the SVG previews are screenshots.
+
+**Confidentiality:** The original PBIX, full PDF, detailed employee activity and customer GPS information should not be made public. Always verify charts and any labels as well as table rows before publishing screenshots.
+
+Reference the full [visual walkthrough](../docs/VISUAL_WALKTHROUGH.md) and [gallery](../docs/REPORT_GALLERY.md).
