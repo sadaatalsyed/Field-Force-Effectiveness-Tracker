@@ -1,13 +1,3 @@
-# Verified DAX — 90 measures from uploaded TMDL
-
-The user-supplied `DAX(1).txt` is a **readable TMDL script**, not a compressed PBIX model. It contains **90 original measures across 8 table groups**. We have extracted and grouped every measure **without silently fixing the business logic**. See [all source expressions](../dax/original-tmdl-export.txt), [measure catalog](MEASURE_VISUAL_MAPPING.md) and per-domain `dax/*.dax`.
-
-## Three levels of evidence
-
-1. **Exact DAX**: 90 expressions reproduced from TMDL, including intentional blanks, text formatting and pre-existing calculation choices.
-2. **Visual bindings**: report JSON identifies which of these names is referenced on each actual chart or matrix. It cannot prove a measure is computed correctly.
-3. **SQL lineage**: six supplied extracts show source joins, invoice grain, visit sequencing, business flags and daily aggregation. Their tests are not executable without the client database.
-
 ## Practical measure walkthroughs
 
 ### 1. Sales — booked vs delivery execution
